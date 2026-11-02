@@ -1,0 +1,173 @@
+@import "tailwindcss";
+
+/*
+ * S14 / design/system.md — the whole system lives here and nowhere else.
+ *
+ * Color is declared once, in this file, and exposed as `--color-*` tokens so
+ * components only ever write utilities (`bg-surface`, `text-bone`,
+ * `border-line`). The `ink-*` names of `design/system.md` map to their role:
+ *   ink-900 -> canvas   (page background)
+ *   ink-800 -> surface  (cards, sidebar)
+ *   ink-700 -> raised   (inputs, chips, hover, active nav)
+ * Every other token keeps its system name.
+ */
+@theme {
+  --color-canvas: #0e0f0c;
+  --color-surface: #141611;
+  --color-raised: #1b1e17;
+  --color-line: #262a22;
+  --color-line-strong: #3a4033;
+  --color-bone: #edeee6;
+  --color-sage: #a8b39c;
+  --color-sage-dim: #8a9680;
+  --color-lime: #c8f751;
+  --color-lime-ink: #0e0f0c;
+  --color-rust: #e2543a;
+  --color-amber: #e8a33d;
+
+  /*
+   * The closed type scale. Nothing in the app may pick a size outside it.
+   * Family stays an explicit choice (`font-display`, `font-body`, `font-mono`)
+   * so a single size can serve all three.
+   */
+  --text-display-xl: 64px;
+  --text-display-xl--line-height: 1.02;
+  --text-display-xl--letter-spacing: -0.03em;
+  --text-display-l: 44px;
+  --text-display-l--line-height: 1.06;
+  --text-display-l--letter-spacing: -0.03em;
+  --text-display-m: 32px;
+  --text-display-m--line-height: 1.1;
+  --text-display-m--letter-spacing: -0.03em;
+  --text-title: 20px;
+  --text-title--line-height: 1.3;
+  --text-body: 15px;
+  --text-body--line-height: 1.55;
+  --text-small: 13px;
+  --text-small--line-height: 1.45;
+  --text-micro: 12px;
+  --text-micro--line-height: 1.2;
+  --text-micro--letter-spacing: 0.08em;
+  --text-data-l: 34px;
+  --text-data-l--line-height: 1.1;
+  --text-data-m: 15px;
+  --text-data-m--line-height: 1.4;
+  --text-data-s: 12px;
+  --text-data-s--line-height: 1.4;
+
+  /* Radius: 4, 8, 12 and `full`. Editorial surfaces stay sharp. */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  /* Depth comes from hairlines; the public form card is the one exception. */
+  --shadow-card: 0 24px 60px rgb(0 0 0 / 0.45);
+}
+
+/*
+ * Font families come from `next/font/google` (no CDN link): the generated
+ * `--font-*` variables are set on <html>, which is also `:root`, so the theme
+ * resolves them.
+ */
+@theme {
+  --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-body: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, "SFMono-Regular", monospace;
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-bone);
+    font-family: var(--font-body);
+    font-size: var(--text-body);
+    line-height: 1.55;
+  }
+
+  ::selection {
+    background-color: var(--color-lime);
+    color: var(--color-lime-ink);
+  }
+
+  /* Focus is always a 2px lime outline with a 2px offset. */
+  :focus-visible {
+    outline: 2px solid var(--color-lime);
+    outline-offset: 2px;
+  }
+}
+
+/* A single grain overlay at 3% over the page body. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+/*
+ * Motion: sections fade + rise once, bars grow from the baseline once.
+ * Hover and focus only ever change color, border or opacity. Everything is
+ * disabled under `prefers-reduced-motion`, with no exceptions.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes grow {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  .rise {
+    animation: rise 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  .rise-1 {
+    animation-delay: 0ms;
+  }
+
+  .rise-2 {
+    animation-delay: 40ms;
+  }
+
+  .rise-3 {
+    animation-delay: 80ms;
+  }
+
+  .rise-4 {
+    animation-delay: 120ms;
+  }
+
+  .rise-5 {
+    animation-delay: 160ms;
+  }
+
+  .rise-6 {
+    animation-delay: 200ms;
+  }
+
+  .bar-grow {
+    transform-origin: bottom;
+    animation: grow 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+}
