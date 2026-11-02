@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortURL2 — Crear link</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink-900: #0E0F0C;
+      --ink-800: #141611;
+      --ink-700: #1B1E17;
+      --line: #262A22;
+      --line-strong: #3A4033;
+      --bone: #EDEEE6;
+      --sage: #A8B39C;
+      --sage-dim: #8A9680;
+      --lime: #C8F751;
+      --lime-ink: #0E0F0C;
+      --rust: #E2543A;
+      --amber: #E8A33D;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ink-900);
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Micro-grain subtle overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Top Nav Bar */
+    .top-bar {
+      height: 72px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      background-color: var(--ink-900);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .top-bar-inner {
+      width: 100%;
+      max-width: 1200px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      line-height: 1.30;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      text-decoration: none;
+    }
+
+    .version-pill {
+      display: inline-flex;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line);
+      border-radius: 9999px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      line-height: 1.20;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .nav-link {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 400;
+      color: var(--sage);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .nav-link:hover {
+      color: var(--bone);
+    }
+
+    .btn-secondary {
+      height: 40px;
+      padding: 0 16px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.45;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--ink-700);
+      border-color: var(--sage-dim);
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 64px 32px 96px 32px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Hero Block */
+    .hero {
+      max-width: 760px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 48px;
+    }
+
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 24px;
+      padding: 0 12px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line);
+      border-radius: 9999px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      line-height: 1.20;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage);
+      margin-bottom: 24px;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background-color: var(--lime);
+      border-radius: 9999px;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+
+    .hero-title {
+      font-family: 'Fraunces', serif;
+      font-size: 64px;
+      line-height: 1.02;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      margin-bottom: 24px;
+    }
+
+    .hero-title span {
+      display: block;
+    }
+
+    .hero-desc {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 400;
+      color: var(--sage);
+      max-width: 580px;
+      margin: 0 auto;
+    }
+
+    /* Form Card */
+    .shorten-card {
+      width: 100%;
+      max-width: 720px;
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .field-label {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      line-height: 1.20;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+    }
+
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .url-input {
+      flex: 1;
+      height: 44px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 16px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .url-input::placeholder {
+      color: var(--sage-dim);
+      font-family: 'Instrument Sans', sans-serif;
+    }
+
+    .url-input:focus {
+      border-color: var(--lime);
+      box-shadow: 0 0 0 2px var(--lime);
+    }
+
+    .btn-primary {
+      height: 44px;
+      padding: 0 24px;
+      background-color: var(--lime);
+      color: var(--lime-ink);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.55;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    .hairline-separator {
+      width: 100%;
+      height: 1px;
+      background-color: var(--line);
+      margin: 8px 0;
+    }
+
+    /* Result Strip */
+    .result-strip {
+      background-color: var(--ink-700);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .result-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
+    }
+
+    .result-link {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 1.40;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      color: var(--bone);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .result-link:hover {
+      color: var(--lime);
+    }
+
+    .btn-copy {
+      height: 32px;
+      padding: 0 12px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.45;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+      white-space: nowrap;
+    }
+
+    .btn-copy:hover {
+      background-color: var(--ink-800);
+      border-color: var(--sage);
+    }
+
+    /* Meta Rows */
+    .meta-container {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .meta-row {
+      display: flex;
+      align-items: baseline;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.40;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .meta-label {
+      width: 72px;
+      flex-shrink: 0;
+      color: var(--sage-dim);
+    }
+
+    .meta-value {
+      color: var(--sage);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Disclaimer Under Card */
+    .card-footer-notice {
+      margin-top: 16px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 400;
+      color: var(--sage-dim);
+      text-align: center;
+    }
+
+    /* Clean minimal page footer */
+    .page-footer {
+      width: 100%;
+      max-width: 1200px;
+      margin: auto auto 0 auto;
+      padding: 24px 32px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.40;
+      color: var(--sage-dim);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 24px;
+    }
+
+    .footer-links a {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--sage-dim);
+      text-decoration: none;
+      transition: color 0.15s ease;
+    }
+
+    .footer-links a:hover {
+      color: var(--bone);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar 72px -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="brand-group">
+        <a href="/" class="brand-logo">shorturl</a>
+        <span class="version-pill">v1</span>
+      </div>
+      <div class="nav-actions">
+        <a href="#panel" class="nav-link">Panel</a>
+        <a href="#login" class="btn-secondary">Iniciar sesión</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hero and Form -->
+  <main>
+    <section class="hero">
+      <div class="live-badge">
+        <span class="live-dot"></span>
+        <span>Analíticas en vivo</span>
+      </div>
+      <h1 class="hero-title">
+        <span>Links cortos.</span>
+        <span>Datos que sirven.</span>
+      </h1>
+      <p class="hero-desc">
+        Pegá cualquier URL, obtené un link de 7 caracteres y mirá exactamente cuándo lo abren.
+      </p>
+    </section>
+
+    <!-- Shortener Card -->
+    <section class="shorten-card">
+      <div class="field-label">URL ORIGINAL</div>
+      <div class="input-row">
+        <input 
+          type="text" 
+          class="url-input" 
+          placeholder="https://ejemplo.com/una/url/muy/larga"
+          value="https://ejemplo.com/una/url/muy/larga"
+          aria-label="URL original"
+        />
+        <button class="btn-primary" type="button">Acortar</button>
+      </div>
+
+      <div class="hairline-separator"></div>
+
+      <div class="field-label">LINK GENERADO</div>
+      
+      <!-- Result strip -->
+      <div class="result-strip">
+        <div class="result-left">
+          <span class="live-dot"></span>
+          <a href="https://shorturl.app/x7Kd2pQ" target="_blank" rel="noopener noreferrer" class="result-link">shorturl.app/x7Kd2pQ</a>
+        </div>
+        <button class="btn-copy" type="button" onclick="navigator.clipboard && navigator.clipboard.writeText('shorturl.app/x7Kd2pQ'); this.innerText='Copiado'; setTimeout(() => this.innerText='Copiar', 2000);">Copiar</button>
+      </div>
+
+      <!-- Meta Rows -->
+      <div class="meta-container">
+        <div class="meta-row">
+          <span class="meta-label">resp.</span>
+          <span class="meta-value">302 · Cache-Control: no-store</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">destino</span>
+          <span class="meta-value">ejemplo.com/una/url/muy/larga</span>
+        </div>
+      </div>
+    </section>
+
+    <div class="card-footer-notice">
+      Máximo 20 links por hora por IP · los clics de previews también cuentan
+    </div>
+  </main>
+
+</body>
+</html>

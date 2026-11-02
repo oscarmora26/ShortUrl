@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortURL2 — Iniciar sesión (/login)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink-900: #0E0F0C;
+      --ink-800: #141611;
+      --ink-700: #1B1E17;
+      --line: #262A22;
+      --line-strong: #3A4033;
+      --bone: #EDEEE6;
+      --sage: #A8B39C;
+      --sage-dim: #8A9680;
+      --lime: #C8F751;
+      --lime-ink: #0E0F0C;
+      --rust: #E2543A;
+      --amber: #E8A33D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ink-900);
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Micro-grain texture overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 999;
+    }
+
+    .layout-split {
+      display: flex;
+      min-height: 100vh;
+      width: 100vw;
+    }
+
+    /* LEFT PANEL */
+    .panel-left {
+      width: 44%;
+      background-color: var(--ink-800);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 32px;
+      position: relative;
+    }
+
+    .brand-wordmark {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      line-height: 1.30;
+      font-weight: 600;
+      color: var(--bone);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.40;
+      font-weight: 400;
+      color: var(--sage-dim);
+      background-color: var(--ink-700);
+      padding: 2px 8px;
+      border-radius: 4px;
+      border: 1px solid var(--line);
+    }
+
+    .panel-left-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .left-headline {
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+      line-height: 1.10;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      font-variation-settings: 'opsz' 72;
+    }
+
+    .left-subline {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 400;
+      color: var(--sage);
+    }
+
+    /* RIGHT PANEL */
+    .panel-right {
+      width: 56%;
+      background-color: var(--ink-900);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    .login-form-wrap {
+      width: 100%;
+      max-width: 380px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .header-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .micro-label {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      line-height: 1.20;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+    }
+
+    .panel-headline {
+      font-family: 'Fraunces', serif;
+      font-size: 32px;
+      line-height: 1.10;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      font-variation-settings: 'opsz' 72;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+
+    .field-input-wrapper {
+      position: relative;
+    }
+
+    .text-input {
+      width: 100%;
+      height: 44px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 1.40;
+      color: var(--bone);
+      outline: none;
+      letter-spacing: 0.25em;
+      transition: border-color 0.15s ease;
+      /* Pre-configured with simulated 2px outline + 2px offset as specified */
+      outline: 2px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    .text-input:focus {
+      outline: 2px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .custom-checkbox {
+      width: 18px;
+      height: 18px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line-strong);
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background-color 0.15s, border-color 0.15s;
+    }
+
+    .checkbox-row:hover .custom-checkbox {
+      border-color: var(--sage-dim);
+    }
+
+    .checkbox-row.checked .custom-checkbox {
+      background-color: var(--lime);
+      border-color: var(--lime);
+    }
+
+    .checkbox-tick {
+      display: none;
+      width: 10px;
+      height: 10px;
+      fill: var(--lime-ink);
+    }
+
+    .checkbox-row.checked .checkbox-tick {
+      display: block;
+    }
+
+    .checkbox-text {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 400;
+      color: var(--sage);
+    }
+
+    .btn-primary {
+      width: 100%;
+      height: 40px;
+      background-color: var(--lime);
+      color: var(--lime-ink);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.15s ease;
+      margin-bottom: 32px;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    .divider {
+      height: 1px;
+      background-color: var(--line);
+      width: 100%;
+      margin-bottom: 24px;
+    }
+
+    .footer-note {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      line-height: 1.45;
+      font-weight: 400;
+      color: var(--sage-dim);
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout-split">
+    <!-- LEFT PANEL: 44% width, #141611, border-right: 1px #262A22 -->
+    <aside class="panel-left">
+      <div class="brand-top">
+        <a href="/" class="brand-wordmark">
+          shorturl
+          <span class="brand-tag">V1</span>
+        </a>
+      </div>
+      
+      <div class="panel-left-content">
+        <h1 class="left-headline">El panel es tuyo.</h1>
+        <p class="left-subline">Los links son públicos. Las métricas, no.</p>
+      </div>
+    </aside>
+
+    <!-- RIGHT PANEL: 56% width, #0E0F0C, centered form column max 380px -->
+    <main class="panel-right">
+      <div class="login-form-wrap">
+        
+        <!-- Header -->
+        <div class="header-group">
+          <span class="micro-label">ACCESO AL PANEL</span>
+          <h2 class="panel-headline">Entrá a tus métricas</h2>
+        </div>
+
+        <!-- Field -->
+        <div class="field-group">
+          <label class="micro-label" for="owner-pass">CONTRASEÑA</label>
+          <div class="field-input-wrapper">
+            <input 
+              type="password" 
+              id="owner-pass" 
+              class="text-input" 
+              value="••••••••" 
+              autocomplete="current-password"
+              autofocus
+            />
+          </div>
+        </div>
+
+        <!-- Checkbox row -->
+        <div class="checkbox-row checked" onclick="this.classList.toggle('checked')">
+          <div class="custom-checkbox">
+            <svg class="checkbox-tick" viewBox="0 0 10 10">
+              <path d="M1.5 5.2L3.8 7.5L8.5 2.5" fill="none" stroke="#0E0F0C" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <span class="checkbox-text">Recordarme 7 días</span>
+        </div>
+
+        <!-- Primary CTA -->
+        <button type="button" class="btn-primary">
+          Entrar
+        </button>
+
+        <!-- Hairline divider -->
+        <div class="divider"></div>
+
+        <!-- Sub-text disclaimer note -->
+        <p class="footer-note">
+          Sesión firmada en este navegador. Sin correo, sin registro.
+        </p>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>

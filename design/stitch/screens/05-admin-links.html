@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortURL2 — Índice de links (/admin/links)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink-900: #0E0F0C;
+      --ink-800: #141611;
+      --ink-700: #1B1E17;
+      --line: #262A22;
+      --line-strong: #3A4033;
+      --bone: #EDEEE6;
+      --sage: #A8B39C;
+      --sage-dim: #8A9680;
+      --lime: #C8F751;
+      --lime-ink: #0E0F0C;
+      --rust: #E2543A;
+      --amber: #E8A33D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ink-900);
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      position: relative;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Subtle editorial film grain simulation without external assets */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      opacity: 0.035;
+      z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* SIDEBAR */
+    aside.sidebar {
+      width: 264px;
+      background-color: var(--ink-800);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      min-height: 100vh;
+    }
+
+    .brand-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .wordmark {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      text-decoration: none;
+    }
+
+    .pill-version {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      padding: 0 8px;
+      border-radius: 9999px;
+      background-color: var(--ink-700);
+      color: var(--sage-dim);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border: 1px solid var(--line);
+    }
+
+    .nav-container {
+      padding: 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .nav-item {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sage);
+      text-decoration: none;
+      position: relative;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+
+    .nav-item:hover {
+      color: var(--bone);
+      background-color: var(--ink-700);
+    }
+
+    .nav-item.active {
+      background-color: var(--ink-700);
+      color: var(--bone);
+    }
+
+    .nav-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 13px;
+      width: 2px;
+      height: 14px;
+      background-color: var(--lime);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .user-footer {
+      padding: 20px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--bone);
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sage-dim);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .btn-ghost-logout {
+      background: transparent;
+      border: none;
+      color: var(--sage);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: color 150ms ease;
+    }
+
+    .btn-ghost-logout:hover {
+      color: var(--bone);
+    }
+
+    /* MAIN CONTENT */
+    main.main-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      height: 72px;
+      border-bottom: 1px solid var(--line);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-titles {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 44px;
+      line-height: 1.06;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--sage-dim);
+    }
+
+    .content-area {
+      padding: 32px;
+      max-width: 1120px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* TOOLBAR ROW */
+    .toolbar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .search-wrapper {
+      flex: 1;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      height: 40px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 16px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 150ms ease, box-shadow 150ms ease;
+    }
+
+    .search-input::placeholder {
+      color: var(--sage-dim);
+    }
+
+    .search-input:focus {
+      outline: 2px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    .select-wrapper {
+      width: 160px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .custom-select {
+      width: 100%;
+      height: 40px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 32px 0 12px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      appearance: none;
+      cursor: pointer;
+      outline: none;
+      display: flex;
+      align-items: center;
+    }
+
+    .custom-select:focus {
+      outline: 2px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    .select-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--sage-dim);
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-secondary {
+      height: 40px;
+      padding: 0 16px;
+      background-color: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: background-color 150ms ease, border-color 150ms ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--ink-700);
+    }
+
+    .btn-secondary:focus-visible {
+      outline: 2px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    /* TABLE CARD */
+    .table-card {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    table.links-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    thead tr {
+      height: 44px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th {
+      text-align: left;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      padding: 0 24px;
+      user-select: none;
+    }
+
+    th.col-clicks {
+      text-align: right;
+    }
+
+    th.col-actions {
+      text-align: right;
+      padding-right: 24px;
+    }
+
+    /* Column Widths specified */
+    col.col-codigo { width: 120px; }
+    col.col-destino { width: auto; }
+    col.col-clics { width: 90px; }
+    col.col-creado { width: 110px; }
+    col.col-estado { width: 130px; }
+    col.col-acciones { width: 64px; }
+
+    tbody tr {
+      height: 56px;
+      border-bottom: 1px solid var(--line);
+      transition: background-color 120ms ease;
+    }
+
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+
+    tbody tr:hover {
+      background-color: var(--ink-700);
+    }
+
+    td {
+      padding: 0 24px;
+      vertical-align: middle;
+    }
+
+    .code-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 1.40;
+      color: var(--lime);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .code-cell.disabled {
+      color: var(--sage-dim);
+    }
+
+    .dest-cell {
+      color: var(--sage);
+      font-size: 14px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      display: block;
+      line-height: 56px;
+    }
+
+    .dest-cell.disabled {
+      color: var(--sage-dim);
+    }
+
+    .clicks-cell {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      line-height: 1.40;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .clicks-cell.disabled {
+      color: var(--sage-dim);
+    }
+
+    .created-cell {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      line-height: 1.40;
+      color: var(--sage-dim);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* STATUS PILLS */
+    .status-pill {
+      height: 24px;
+      border-radius: 9999px;
+      background-color: var(--ink-700);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 10px;
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--bone);
+      border: 1px solid var(--line);
+    }
+
+    .dot-lime {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: var(--lime);
+      flex-shrink: 0;
+    }
+
+    .status-pill.disabled {
+      color: var(--amber);
+      border-color: var(--line);
+    }
+
+    /* ACTIONS BUTTON */
+    .btn-actions {
+      background: transparent;
+      border: none;
+      color: var(--sage-dim);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 16px;
+      letter-spacing: 2px;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    .btn-actions:hover {
+      color: var(--bone);
+      background-color: var(--ink-800);
+    }
+
+    /* FOOTER PAGINATION */
+    .table-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 16px;
+      padding-top: 4px;
+    }
+
+    .footer-counter {
+      font-size: 13px;
+      line-height: 1.45;
+      color: var(--sage-dim);
+    }
+
+    .pagination-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-page {
+      height: 32px;
+      padding: 0 12px;
+      background-color: transparent;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 150ms ease;
+    }
+
+    .btn-page:hover {
+      background-color: var(--ink-700);
+    }
+
+    .btn-page:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-header">
+      <a href="#" class="wordmark">shorturl</a>
+      <span class="pill-version">V1</span>
+    </div>
+
+    <nav class="nav-container">
+      <a href="#" class="nav-item">Panel</a>
+      <a href="#" class="nav-item active">Links</a>
+      <a href="#" class="nav-item">Analíticas</a>
+    </nav>
+
+    <div class="user-footer">
+      <div class="user-info">
+        <span class="user-name">oscar</span>
+        <span class="user-role">DUEÑO</span>
+      </div>
+      <button class="btn-ghost-logout" type="button">Salir</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <header class="top-bar">
+      <div class="header-titles">
+        <h1 class="page-title">Links</h1>
+        <span class="page-subtitle">37 activos · 4 deshabilitados</span>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- TOOLBAR -->
+      <div class="toolbar-row">
+        <div class="search-wrapper">
+          <input 
+            type="text" 
+            class="search-input" 
+            placeholder="Buscar por código, URL o destino"
+            spellcheck="false"
+          >
+        </div>
+
+        <div class="select-wrapper">
+          <div class="custom-select">
+            <span>Estado: Todos</span>
+          </div>
+          <div class="select-icon">
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M2.5 4.5L6 8L9.5 4.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+        <button class="btn-secondary" type="button">
+          Exportar CSV
+        </button>
+      </div>
+
+      <!-- TABLE CARD -->
+      <div class="table-card">
+        <table class="links-table">
+          <colgroup>
+            <col class="col-codigo">
+            <col class="col-destino">
+            <col class="col-clics">
+            <col class="col-creado">
+            <col class="col-estado">
+            <col class="col-acciones">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>CÓDIGO</th>
+              <th>DESTINO</th>
+              <th class="col-clicks">CLICS</th>
+              <th>CREADO</th>
+              <th>ESTADO</th>
+              <th class="col-actions"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Row 1 -->
+            <tr>
+              <td>
+                <span class="code-cell">x7Kd2pQ</span>
+              </td>
+              <td>
+                <span class="dest-cell" title="ejemplo.com/blog/como-acortar-urls">ejemplo.com/blog/como-acortar-urls</span>
+              </td>
+              <td class="clicks-cell">1.284</td>
+              <td>
+                <span class="created-cell">hace 12 d</span>
+              </td>
+              <td>
+                <span class="status-pill">
+                  <span class="dot-lime"></span>
+                  Activo
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-actions" type="button" aria-label="Acciones">···</button>
+              </td>
+            </tr>
+
+            <!-- Row 2 -->
+            <tr>
+              <td>
+                <span class="code-cell">m3Qz8Tn</span>
+              </td>
+              <td>
+                <span class="dest-cell" title="ejemplo.com/precios">ejemplo.com/precios</span>
+              </td>
+              <td class="clicks-cell">612</td>
+              <td>
+                <span class="created-cell">hace 9 d</span>
+              </td>
+              <td>
+                <span class="status-pill">
+                  <span class="dot-lime"></span>
+                  Activo
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-actions" type="button" aria-label="Acciones">···</button>
+              </td>
+            </tr>
+
+            <!-- Row 3 -->
+            <tr>
+              <td>
+                <span class="code-cell">b9Wr4Lc</span>
+              </td>
+              <td>
+                <span class="dest-cell" title="docs.ejemplo.com/guia/urls-cortas">docs.ejemplo.com/guia/urls-cortas</span>
+              </td>
+              <td class="clicks-cell">388</td>
+              <td>
+                <span class="created-cell">hace 16 d</span>
+              </td>
+              <td>
+                <span class="status-pill">
+                  <span class="dot-lime"></span>
+                  Activo
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-actions" type="button" aria-label="Acciones">···</button>
+              </td>
+            </tr>
+
+            <!-- Row 4 -->
+            <tr>
+              <td>
+                <span class="code-cell">t5Nv1Hs</span>
+              </td>
+              <td>
+                <span class="dest-cell" title="tienda.ejemplo.com/lanzamiento">tienda.ejemplo.com/lanzamiento</span>
+              </td>
+              <td class="clicks-cell">241</td>
+              <td>
+                <span class="created-cell">hace 21 d</span>
+              </td>
+              <td>
+                <span class="status-pill">
+                  <span class="dot-lime"></span>
+                  Activo
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-actions" type="button" aria-label="Acciones">···</button>
+              </td>
+            </tr>
+
+            <!-- Row 5 (Disabled) -->
+            <tr>
+              <td>
+                <span class="code-cell disabled">k2Jd7Pm</span>
+              </td>
+              <td>
+                <span class="dest-cell disabled" title="ejemplo.com/newsletter">ejemplo.com/newsletter</span>
+              </td>
+              <td class="clicks-cell disabled">96</td>
+              <td>
+                <span class="created-cell">hace 27 d</span>
+              </td>
+              <td>
+                <span class="status-pill disabled">
+                  Deshabilitado
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-actions" type="button" aria-label="Acciones">···</button>
+              </td>
+            </tr>
+
+            <!-- Row 6 (Disabled) -->
+            <tr>
+              <td>
+                <span class="code-cell disabled">d4Hs9Bv</span>
+              </td>
+              <td>
+                <span class="dest-cell disabled" title="ejemplo.com/viejo-post">ejemplo.com/viejo-post</span>
+              </td>
+              <td class="clicks-cell disabled">0</td>
+              <td>
+                <span class="created-cell">hace 34 d</span>
+              </td>
+              <td>
+                <span class="status-pill disabled">
+                  Deshabilitado
+                </span>
+              </td>
+              <td style="text-align: right;">
+                <button class="btn-actions" type="button" aria-label="Acciones">···</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- FOOTER -->
+      <footer class="table-footer">
+        <span class="footer-counter">37 de 41 links · página 1 de 2</span>
+        <div class="pagination-actions">
+          <button class="btn-page" type="button" disabled>Anterior</button>
+          <button class="btn-page" type="button">Siguiente</button>
+        </div>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>

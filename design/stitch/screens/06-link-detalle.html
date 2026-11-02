@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=1440, initial-scale=1.0" name="viewport"/>
+<title>ShortURL2 — Detalle de link (/admin/links/x7Kd2pQ)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&amp;family=Instrument+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --ink-900: #0E0F0C;
+      --ink-800: #141611;
+      --ink-700: #1B1E17;
+      --line: #262A22;
+      --line-strong: #3A4033;
+      --bone: #EDEEE6;
+      --sage: #A8B39C;
+      --sage-dim: #8A9680;
+      --lime: #C8F751;
+      --lime-ink: #0E0F0C;
+      --rust: #E2543A;
+      --amber: #E8A33D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ink-900);
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* Micro-grain subtle overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 9999;
+    }
+
+    /* Typography utilities */
+    .font-fraunces {
+      font-family: 'Fraunces', serif;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+    }
+    .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+    .micro-label {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      line-height: 1.20;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+    }
+
+    /* Layout Shell */
+    .sidebar {
+      width: 264px;
+      flex-shrink: 0;
+      background-color: var(--ink-800);
+      border-right: 1px solid var(--line);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .sidebar-top {
+      padding: 24px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .brand-title {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      text-decoration: none;
+    }
+
+    .brand-pill {
+      background-color: var(--ink-700);
+      color: var(--sage-dim);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      letter-spacing: 0.04em;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      height: 40px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      text-decoration: none;
+      position: relative;
+      transition: background-color 0.15s, color 0.15s;
+    }
+
+    .nav-item.active {
+      background-color: var(--ink-700);
+      color: var(--bone);
+    }
+
+    .nav-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 13px;
+      width: 2px;
+      height: 14px;
+      background-color: var(--lime);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-item.inactive {
+      color: var(--sage);
+    }
+
+    .nav-item.inactive:hover {
+      background-color: var(--ink-700);
+      color: var(--bone);
+    }
+
+    .sidebar-bottom {
+      padding: 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--bone);
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sage-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .btn-ghost-logout {
+      background: transparent;
+      border: none;
+      color: var(--sage);
+      font-size: 13px;
+      font-family: 'Instrument Sans', sans-serif;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .btn-ghost-logout:hover {
+      color: var(--bone);
+    }
+
+    /* Main Content Area */
+    .main-area {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--ink-900);
+    }
+
+    /* Top Bar */
+    .top-bar {
+      height: 72px;
+      border-bottom: 1px solid var(--line);
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-back {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      color: var(--bone);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.15s, border-color 0.15s;
+      text-decoration: none;
+    }
+
+    .btn-back:hover {
+      background-color: var(--ink-700);
+      border-color: var(--line-strong);
+    }
+
+    .link-code-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .link-meta-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--sage-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Buttons */
+    .btn-secondary {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--ink-700);
+    }
+
+    .btn-danger {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--rust);
+      color: var(--rust);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.15s;
+    }
+
+    .btn-danger:hover {
+      background-color: rgba(226, 84, 58, 0.08);
+    }
+
+    .btn-ghost-open {
+      background: transparent;
+      border: none;
+      color: var(--lime);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      transition: background-color 0.15s;
+    }
+
+    .btn-ghost-open:hover {
+      background-color: var(--ink-700);
+    }
+
+    /* Page Content */
+    .page-content {
+      padding: 32px;
+      max-width: 1120px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Destination Strip */
+    .destination-strip {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .destination-info {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .destination-url {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      color: var(--bone);
+      word-break: break-all;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Stat Cards Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .stat-card {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 34px;
+      line-height: 1.10;
+      font-weight: 500;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+      margin-top: 4px;
+    }
+
+    .stat-delta {
+      font-size: 13px;
+      font-family: 'Instrument Sans', sans-serif;
+      line-height: 1.45;
+    }
+
+    .delta-lime {
+      color: var(--lime);
+    }
+
+    .delta-muted {
+      color: var(--sage-dim);
+    }
+
+    /* Lower Split */
+    .lower-split {
+      display: flex;
+      gap: 24px;
+      align-items: flex-start;
+    }
+
+    /* Chart Card */
+    .chart-card {
+      flex: 1;
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.30;
+      color: var(--bone);
+    }
+
+    .chart-legend {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .legend-square {
+      width: 10px;
+      height: 10px;
+      background-color: var(--lime);
+      border-radius: 2px;
+    }
+
+    .legend-text {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--sage-dim);
+    }
+
+    .chart-viewport {
+      padding-top: 24px;
+      padding-bottom: 8px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .bars-container {
+      height: 180px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      padding: 0 4px;
+      border-bottom: 1px solid var(--line);
+      position: relative;
+    }
+
+    .bar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      height: 100%;
+      width: 6px;
+    }
+
+    .chart-bar {
+      width: 6px;
+      border-radius: 2px 2px 0 0;
+      background-color: var(--lime);
+      opacity: 0.65;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .chart-bar.current-day {
+      opacity: 1;
+    }
+
+    .chart-bar.stub {
+      height: 2px !important;
+      background-color: var(--line);
+      opacity: 1;
+    }
+
+    .chart-bar:not(.stub):hover {
+      opacity: 1;
+    }
+
+    .chart-axis-labels {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 4px 0 4px;
+    }
+
+    .axis-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--sage-dim);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Right Rail */
+    .right-rail {
+      width: 300px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .rail-card {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rail-header {
+      margin-bottom: 8px;
+    }
+
+    .rail-rows {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .rail-row {
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .rail-row:last-child {
+      border-bottom: none;
+    }
+
+    .rail-row-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .lime-tick {
+      width: 2px;
+      height: 12px;
+      background-color: var(--lime);
+      border-radius: 1px;
+    }
+
+    .day-name {
+      font-size: 13px;
+      color: var(--sage);
+    }
+
+    .count-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .activity-label {
+      font-size: 13px;
+      color: var(--sage-dim);
+    }
+
+    .activity-value {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body>
+<!-- SIDEBAR -->
+<aside class="sidebar">
+<div class="sidebar-top">
+<div class="brand-wrap">
+<a class="brand-title" href="#">shorturl</a>
+<span class="brand-pill">V1</span>
+</div>
+<nav>
+<ul class="nav-list">
+<li>
+<a class="nav-item inactive" href="#">Panel</a>
+</li>
+<li>
+<a class="nav-item active" href="#">Links</a>
+</li>
+<li>
+<a class="nav-item inactive" href="#">Analíticas</a>
+</li>
+</ul>
+</nav>
+</div>
+<div class="sidebar-bottom">
+<div class="user-info">
+<span class="user-name">oscar</span>
+<span class="user-role">DUEÑO</span>
+</div>
+<button class="btn-ghost-logout">Salir</button>
+</div>
+</aside>
+<!-- MAIN AREA -->
+<main class="main-area">
+<!-- TOP BAR -->
+<header class="top-bar">
+<div class="top-bar-left">
+<a class="btn-back" href="#" title="Volver">←</a>
+<span class="link-code-title">x7Kd2pQ</span>
+<span class="link-meta-tag">302 · no-store · creado hace 12 días</span>
+</div>
+<div class="top-bar-right">
+<button class="btn-secondary">Copiar link</button>
+<button class="btn-danger">Deshabilitar</button>
+</div>
+</header>
+<!-- CONTENT -->
+<div class="page-content">
+<!-- DESTINO STRIP -->
+<section class="destination-strip">
+<div class="destination-info">
+<span class="micro-label">DESTINO</span>
+<span class="destination-url">https://ejemplo.com/blog/como-acortar-urls</span>
+</div>
+<a class="btn-ghost-open" href="https://ejemplo.com/blog/como-acortar-urls" rel="noopener noreferrer" style="color: var(--bone);" target="_blank">
+          Abrir ↗
+        </a>
+</section>
+<!-- STAT CARDS -->
+<section class="stats-row">
+<!-- Stat Card 1 -->
+<div class="stat-card">
+<span class="micro-label">Clics totales</span>
+<span class="stat-value">1.284</span>
+</div>
+<!-- Stat Card 2 -->
+<div class="stat-card">
+<span class="micro-label">Clics hoy</span>
+<span class="stat-value">47</span>
+<span class="stat-delta delta-lime">↑ 8 vs. ayer</span>
+</div>
+<!-- Stat Card 3 -->
+<div class="stat-card">
+<span class="micro-label">Mejor día</span>
+<span class="stat-value">71</span>
+<span class="stat-delta delta-muted">lunes 26 de mayo</span>
+</div>
+</section>
+<!-- LOWER SPLIT -->
+<section class="lower-split" style="align-items: stretch;">
+<!-- Chart Card (grows) -->
+<div class="chart-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+<div class="chart-header">
+<h2 class="chart-title">Clics por día</h2>
+<div class="chart-legend">
+<div class="legend-square"></div>
+<span class="legend-text">Clics</span>
+</div>
+</div>
+<div class="chart-viewport" style="flex: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+<div class="bars-container">
+<!-- 31 Daily Bars: 6px wide, 2px top radius, 65% opacity history, 100% current day, 2px stubs on 0 -->
+<!-- Day 1: May 1 -->
+<div class="bar-col"><div class="chart-bar" style="height: 38px;"></div></div>
+<!-- Day 2: May 2 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 3: May 3 -->
+<div class="bar-col"><div class="chart-bar" style="height: 52px;"></div></div>
+<!-- Day 4: May 4 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 5: May 5 -->
+<div class="bar-col"><div class="chart-bar" style="height: 44px;"></div></div>
+<!-- Day 6: May 6 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 7: May 7 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 8: May 8 -->
+<div class="bar-col"><div class="chart-bar" style="height: 60px;"></div></div>
+<!-- Day 9: May 9 -->
+<div class="bar-col"><div class="chart-bar" style="height: 82px;"></div></div>
+<!-- Day 10: May 10 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 11: May 11 -->
+<div class="bar-col"><div class="chart-bar" style="height: 76px;"></div></div>
+<!-- Day 12: May 12 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 13: May 13 -->
+<div class="bar-col"><div class="chart-bar" style="height: 54px;"></div></div>
+<!-- Day 14: May 14 -->
+<div class="bar-col"><div class="chart-bar" style="height: 48px;"></div></div>
+<!-- Day 15: May 15 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 16: May 16 -->
+<div class="bar-col"><div class="chart-bar" style="height: 68px;"></div></div>
+<!-- Day 17: May 17 -->
+<div class="bar-col"><div class="chart-bar" style="height: 98px;"></div></div>
+<!-- Day 18: May 18 -->
+<div class="bar-col"><div class="chart-bar" style="height: 86px;"></div></div>
+<!-- Day 19: May 19 -->
+<div class="bar-col"><div class="chart-bar" style="height: 72px;"></div></div>
+<!-- Day 20: May 20 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 21: May 21 -->
+<div class="bar-col"><div class="chart-bar" style="height: 78px;"></div></div>
+<!-- Day 22: May 22 -->
+<div class="bar-col"><div class="chart-bar" style="height: 92px;"></div></div>
+<!-- Day 23: May 23 -->
+<div class="bar-col"><div class="chart-bar" style="height: 110px;"></div></div>
+<!-- Day 24: May 24 -->
+<div class="bar-col"><div class="chart-bar" style="height: 80px;"></div></div>
+<!-- Day 25: May 25 -->
+<div class="bar-col"><div class="chart-bar stub"></div></div>
+<!-- Day 26: May 26 (Top 1: 71 clicks) -->
+<div class="bar-col"><div class="chart-bar" style="height: 158px;"></div></div>
+<!-- Day 27: May 27 (Top 2: 67 clicks) -->
+<div class="bar-col"><div class="chart-bar" style="height: 148px;"></div></div>
+<!-- Day 28: May 28 (Top 3: 66 clicks) -->
+<div class="bar-col"><div class="chart-bar" style="height: 144px;"></div></div>
+<!-- Day 29: May 29 -->
+<div class="bar-col"><div class="chart-bar" style="height: 96px;"></div></div>
+<!-- Day 30: May 30 -->
+<div class="bar-col"><div class="chart-bar" style="height: 122px;"></div></div>
+<!-- Day 31: May 31 (Current day: 47 clicks, 100% lime opacity) -->
+<div class="bar-col"><div class="chart-bar current-day" style="height: 104px;"></div></div>
+</div>
+<div class="chart-axis-labels">
+<span class="axis-label">1 may</span>
+<span class="axis-label">15 may</span>
+<span class="axis-label">30 may</span>
+</div>
+</div>
+</div>
+<!-- Right Rail (300px wide) -->
+<div class="right-rail">
+<!-- Rail Card 1: TOP DÍAS -->
+<div class="rail-card">
+<div class="rail-header">
+<span class="micro-label">TOP DÍAS</span>
+</div>
+<div class="rail-rows">
+<div class="rail-row">
+<div class="rail-row-left">
+<div class="lime-tick"></div>
+<span class="day-name">lunes 26 may</span>
+</div>
+<span class="count-value">71</span>
+</div>
+<div class="rail-row">
+<div class="rail-row-left">
+<div class="lime-tick"></div>
+<span class="day-name">martes 27 may</span>
+</div>
+<span class="count-value">67</span>
+</div>
+<div class="rail-row">
+<div class="rail-row-left">
+<div class="lime-tick"></div>
+<span class="day-name">miércoles 28 may</span>
+</div>
+<span class="count-value">66</span>
+</div>
+</div>
+</div>
+<!-- Rail Card 2: ACTIVIDAD -->
+<div class="rail-card">
+<div class="rail-header">
+<span class="micro-label">ACTIVIDAD</span>
+</div>
+<div class="rail-rows">
+<div class="rail-row">
+<span class="activity-label">Primer clic</span>
+<span class="activity-value">12 may</span>
+</div>
+<div class="rail-row">
+<span class="activity-label">Último clic</span>
+<span class="activity-value">hace 2 min</span>
+</div>
+<div class="rail-row">
+<span class="activity-label">Promedio</span>
+<span class="activity-value">42,8 /día</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body>
+</html>

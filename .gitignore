@@ -26,3 +26,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 *.tsbuildinfo
+
+# heavy Stitch 2560px originals; the verified local renders are the *-fixed ones
+design/stitch/shots/*.png
+!design/stitch/shots/*-fixed.png

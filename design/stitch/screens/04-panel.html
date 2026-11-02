@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShortURL2 — Panel (/admin)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink-900: #0E0F0C;
+      --ink-800: #141611;
+      --ink-700: #1B1E17;
+      --line: #262A22;
+      --line-strong: #3A4033;
+      --bone: #EDEEE6;
+      --sage: #A8B39C;
+      --sage-dim: #8A9680;
+      --lime: #C8F751;
+      --lime-ink: #0E0F0C;
+      --rust: #E2543A;
+      --amber: #E8A33D;
+      
+      --font-display: 'Fraunces', serif;
+      --font-body: 'Instrument Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ink-900);
+      color: var(--bone);
+      font-family: var(--font-body);
+      font-size: 15px;
+      line-height: 1.55;
+      min-height: 100vh;
+      display: flex;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Subtle editorial film grain */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 999;
+    }
+
+    /* SIDEBAR (264px) */
+    aside.sidebar {
+      width: 264px;
+      min-width: 264px;
+      background-color: var(--ink-900);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand-area {
+      height: 72px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--bone);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 2px 6px;
+      background: var(--ink-700);
+      border: 1px solid var(--line);
+      border-radius: 9999px;
+      color: var(--sage);
+      line-height: 1.2;
+    }
+
+    nav.nav-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 16px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sage);
+      position: relative;
+      transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    .nav-item:hover {
+      color: var(--bone);
+      background-color: var(--ink-800);
+    }
+
+    .nav-item.active {
+      background-color: var(--ink-700);
+      color: var(--bone);
+    }
+
+    .nav-item.active::before {
+      content: "";
+      position: absolute;
+      left: -4px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 14px;
+      background-color: var(--lime);
+      border-radius: 1px;
+    }
+
+    .user-footer {
+      border-top: 1px solid var(--line);
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-meta .user-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--bone);
+      line-height: 1.2;
+    }
+
+    .user-meta .user-role {
+      font-family: var(--font-body);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      margin-top: 2px;
+    }
+
+    .btn-salir {
+      background: none;
+      border: none;
+      font-family: var(--font-body);
+      font-size: 13px;
+      color: var(--sage);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+      transition: color 150ms;
+    }
+
+    .btn-salir:hover {
+      color: var(--bone);
+    }
+
+    /* MAIN WRAPPER */
+    main.main-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* TOP BAR (72px) */
+    header.topbar {
+      height: 72px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--line);
+      position: sticky;
+      top: 0;
+      background-color: var(--ink-900);
+      z-index: 5;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .page-title {
+      font-family: var(--font-display);
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--bone);
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--sage-dim);
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search-box {
+      width: 240px;
+      height: 40px;
+      background-color: var(--ink-700);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: var(--bone);
+      font-family: var(--font-body);
+      font-size: 13px;
+      outline: none;
+      transition: border-color 150ms ease;
+    }
+
+    .search-box::placeholder {
+      color: var(--sage-dim);
+    }
+
+    .search-box:focus {
+      outline: 2px solid var(--lime);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      height: 40px;
+      padding: 0 16px;
+      background-color: var(--lime);
+      color: var(--lime-ink);
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: filter 150ms ease;
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.08);
+    }
+
+    /* CONTENT BODY */
+    .content-container {
+      padding: 32px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      max-width: 1280px;
+      width: 100%;
+    }
+
+    /* CARDS COMMON */
+    .card {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    /* 1) FOUR STAT CARDS IN ONE ROW */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+    }
+
+    .stat-card {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 116px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+    }
+
+    .stat-value-group {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .stat-value {
+      font-family: var(--font-mono);
+      font-size: 34px;
+      font-weight: 500;
+      color: var(--bone);
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .stat-value.text-val {
+      font-size: 26px;
+      letter-spacing: -0.02em;
+    }
+
+    .stat-delta {
+      font-family: var(--font-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--lime);
+    }
+
+    /* 2) TWO COLUMNS SPLIT */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .card-title {
+      font-family: var(--font-body);
+      font-size: 20px;
+      line-height: 1.30;
+      font-weight: 600;
+      color: var(--bone);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title-micro {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      margin-bottom: 16px;
+    }
+
+    /* Activity table list */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .activity-row {
+      height: 44px;
+      display: grid;
+      grid-template-columns: 72px 110px 1fr;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      font-size: 13px;
+    }
+
+    .activity-row:last-child {
+      border-bottom: none;
+    }
+
+    .activity-time {
+      font-family: var(--font-mono);
+      color: var(--sage-dim);
+      font-variant-numeric: tabular-nums;
+      font-size: 12px;
+    }
+
+    .activity-code {
+      font-family: var(--font-mono);
+      color: var(--lime);
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .activity-dest {
+      color: var(--sage);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 12px;
+      font-size: 13px;
+    }
+
+    /* Right rail top links */
+    .rail-card {
+      display: flex;
+      flex-direction: column;
+      align-self: flex-start;
+    }
+
+    .top-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 4px;
+    }
+
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 12px;
+      background-color: var(--ink-700);
+      border-radius: 8px;
+      border: 1px solid var(--line);
+      position: relative;
+    }
+
+    .top-row::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 2px;
+      height: 16px;
+      background-color: var(--lime);
+      border-radius: 1px;
+    }
+
+    .top-code {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--lime);
+      font-weight: 500;
+      margin-left: 6px;
+    }
+
+    .top-count {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 3) TABLE CARD */
+    .table-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .admin-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    .admin-table th {
+      height: 44px;
+      padding: 0 24px;
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      border-bottom: 1px solid var(--line);
+      background-color: var(--ink-800);
+    }
+
+    .admin-table td {
+      height: 56px;
+      padding: 0 24px;
+      border-bottom: 1px solid var(--line);
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    .admin-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .col-code {
+      width: 130px;
+    }
+
+    .col-dest {
+      max-width: 440px;
+    }
+
+    .col-clics {
+      width: 110px;
+      text-align: right;
+    }
+
+    .col-creado {
+      width: 130px;
+      text-align: left;
+    }
+
+    .col-actions {
+      width: 80px;
+      text-align: right;
+      padding-right: 24px !important;
+    }
+
+    .td-code {
+      font-family: var(--font-mono);
+      color: var(--lime);
+      font-weight: 500;
+      font-size: 14px;
+    }
+
+    .td-dest {
+      color: var(--sage);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 440px;
+      display: block;
+      line-height: 56px;
+    }
+
+    .td-clics {
+      font-family: var(--font-mono);
+      color: var(--bone);
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      font-size: 14px;
+    }
+
+    .td-creado {
+      font-family: var(--font-mono);
+      color: var(--sage-dim);
+      font-size: 13px;
+    }
+
+    .action-dots {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--sage-dim);
+      cursor: pointer;
+      display: inline-block;
+      padding: 4px 0;
+      letter-spacing: 0.1em;
+      transition: color 150ms ease;
+    }
+
+    .action-dots:hover {
+      color: var(--bone);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FIXED LEFT SIDEBAR (264px) -->
+  <aside class="sidebar">
+    <div class="brand-area">
+      <span class="brand-title">shorturl</span>
+      <span class="brand-badge">V1</span>
+    </div>
+
+    <nav class="nav-list">
+      <a href="#panel" class="nav-item active">Panel</a>
+      <a href="#links" class="nav-item">Links</a>
+      <a href="#analiticas" class="nav-item">Analíticas</a>
+    </nav>
+
+    <div class="user-footer">
+      <div class="user-meta">
+        <div class="user-name">oscar</div>
+        <div class="user-role">DUEÑO</div>
+      </div>
+      <button class="btn-salir" type="button">Salir</button>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <main class="main-content">
+    
+    <!-- TOP BAR (72px) -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title">Panel</h1>
+        <span class="page-subtitle">Hoy · Buenos Aires</span>
+      </div>
+
+      <div class="topbar-actions">
+        <input type="text" class="search-box" placeholder="Buscar código o URL" aria-label="Buscar código o URL">
+        <button class="btn-primary" type="button">
+          + Nuevo link
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT BODY (32px padding, 24px gaps) -->
+    <div class="content-container">
+
+      <!-- 1) FOUR STAT CARDS IN ONE ROW -->
+      <section class="stats-grid">
+        <!-- CARD 1: CLICS HOY -->
+        <div class="stat-card">
+          <div class="stat-label">CLICS HOY</div>
+          <div class="stat-value-group">
+            <span class="stat-value">47</span>
+            <span class="stat-delta">↑ 8 vs. ayer</span>
+          </div>
+        </div>
+
+        <!-- CARD 2: LINKS ACTIVOS -->
+        <div class="stat-card">
+          <div class="stat-label">LINKS ACTIVOS</div>
+          <div class="stat-value-group">
+            <span class="stat-value">37</span>
+          </div>
+        </div>
+
+        <!-- CARD 3: ÚLTIMO CLIC -->
+        <div class="stat-card">
+          <div class="stat-label">ÚLTIMO CLIC</div>
+          <div class="stat-value-group">
+            <span class="stat-value text-val">hace 2 min</span>
+          </div>
+        </div>
+
+        <!-- CARD 4: CREADOS HOY -->
+        <div class="stat-card">
+          <div class="stat-label">CREADOS HOY</div>
+          <div class="stat-value-group">
+            <span class="stat-value">3</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2) TWO COLUMNS: ACTIVIDAD RECIENTE + TOP DE HOY -->
+      <section class="split-grid">
+        <!-- LEFT: Actividad reciente (grows) -->
+        <div class="card">
+          <h2 class="card-title">Actividad reciente</h2>
+          <div class="activity-list">
+            <div class="activity-row">
+              <span class="activity-time">14:32</span>
+              <span class="activity-code">x7Kd2pQ</span>
+              <span class="activity-dest">ejemplo.com/blog/como-acortar-urls</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">14:18</span>
+              <span class="activity-code">x7Kd2pQ</span>
+              <span class="activity-dest">ejemplo.com/blog/como-acortar-urls</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">13:55</span>
+              <span class="activity-code">m3Qz8Tn</span>
+              <span class="activity-dest">ejemplo.com/precios</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">13:41</span>
+              <span class="activity-code">b9Wr4Lc</span>
+              <span class="activity-dest">docs.ejemplo.com/guia/urls-cortas</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">12:20</span>
+              <span class="activity-code">x7Kd2pQ</span>
+              <span class="activity-dest">ejemplo.com/blog/como-acortar-urls</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">11:08</span>
+              <span class="activity-code">m3Qz8Tn</span>
+              <span class="activity-dest">ejemplo.com/precios</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">10:45</span>
+              <span class="activity-code">t5Nv1Hs</span>
+              <span class="activity-dest">tienda.ejemplo.com/lanzamiento</span>
+            </div>
+            <div class="activity-row">
+              <span class="activity-time">09:12</span>
+              <span class="activity-code">x7Kd2pQ</span>
+              <span class="activity-dest">ejemplo.com/blog/como-acortar-urls</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT RAIL: TOP DE HOY (300px) -->
+        <div class="card rail-card">
+          <div class="card-title-micro">TOP DE HOY</div>
+          <div class="top-list">
+            <div class="top-row">
+              <span class="top-code">x7Kd2pQ</span>
+              <span class="top-count">32</span>
+            </div>
+            <div class="top-row">
+              <span class="top-code">m3Qz8Tn</span>
+              <span class="top-count">9</span>
+            </div>
+            <div class="top-row">
+              <span class="top-code">b9Wr4Lc</span>
+              <span class="top-count">5</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) TABLE CARD (CÓDIGO / DESTINO / CLICS / CREADO / ACCIONES) -->
+      <section class="card table-card">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th class="col-code">CÓDIGO</th>
+              <th class="col-dest">DESTINO</th>
+              <th class="col-clics">CLICS</th>
+              <th class="col-creado">CREADO</th>
+              <th class="col-actions">ACCIONES</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="td-code">x7Kd2pQ</td>
+              <td><span class="td-dest">ejemplo.com/blog/como-acortar-urls</span></td>
+              <td class="td-clics">1.284</td>
+              <td class="td-creado">hace 12 d</td>
+              <td class="col-actions"><span class="action-dots" title="Acciones">···</span></td>
+            </tr>
+            <tr>
+              <td class="td-code">m3Qz8Tn</td>
+              <td><span class="td-dest">ejemplo.com/precios</span></td>
+              <td class="td-clics">612</td>
+              <td class="td-creado">hace 9 d</td>
+              <td class="col-actions"><span class="action-dots" title="Acciones">···</span></td>
+            </tr>
+            <tr>
+              <td class="td-code">b9Wr4Lc</td>
+              <td><span class="td-dest">docs.ejemplo.com/guia/urls-cortas</span></td>
+              <td class="td-clics">388</td>
+              <td class="td-creado">hace 16 d</td>
+              <td class="col-actions"><span class="action-dots" title="Acciones">···</span></td>
+            </tr>
+            <tr>
+              <td class="td-code">t5Nv1Hs</td>
+              <td><span class="td-dest">tienda.ejemplo.com/lanzamiento</span></td>
+              <td class="td-clics">241</td>
+              <td class="td-creado">hace 21 d</td>
+              <td class="col-actions"><span class="action-dots" title="Acciones">···</span></td>
+            </tr>
+            <tr>
+              <td class="td-code">k2Jd7Pm</td>
+              <td><span class="td-dest">ejemplo.com/newsletter</span></td>
+              <td class="td-clics">96</td>
+              <td class="td-creado">hace 27 d</td>
+              <td class="col-actions"><span class="action-dots" title="Acciones">···</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+    </div>
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ShortURL2 — Analíticas (/admin/analytics)</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,600;1,9..144,600&amp;family=Instrument+Sans:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<style>
+    :root {
+      --ink-900: #0E0F0C;
+      --ink-800: #141611;
+      --ink-700: #1B1E17;
+      --line: #262A22;
+      --line-strong: #3A4033;
+      --bone: #EDEEE6;
+      --sage: #A8B39C;
+      --sage-dim: #8A9680;
+      --lime: #C8F751;
+      --lime-ink: #0E0F0C;
+      --rust: #E2543A;
+      --amber: #E8A33D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--ink-900);
+      color: var(--bone);
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      font-weight: 400;
+      min-height: 100vh;
+      display: flex;
+      position: relative;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Subtle grain overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+      z-index: 9999;
+    }
+
+    /* Tabular figures for monospace data */
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Sidebar Layout */
+    .sidebar {
+      width: 264px;
+      min-width: 264px;
+      background-color: var(--ink-800);
+      border-right: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .brand-header {
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-title {
+      font-family: 'Fraunces', serif;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      line-height: 1;
+    }
+
+    .pill-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 2px 6px;
+      border-radius: 9999px;
+      background-color: var(--ink-700);
+      color: var(--sage);
+      border: 1px solid var(--line);
+      line-height: 1.2;
+    }
+
+    .sidebar-nav {
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      height: 40px;
+      border-radius: 8px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sage);
+      text-decoration: none;
+      position: relative;
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+
+    .nav-item:hover {
+      color: var(--bone);
+      background-color: var(--ink-700);
+    }
+
+    .nav-item.active {
+      background-color: var(--ink-700);
+      color: var(--bone);
+    }
+
+    .nav-item.active::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 13px;
+      width: 2px;
+      height: 14px;
+      background-color: var(--lime);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .sidebar-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .user-profile {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .user-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--bone);
+      line-height: 1.2;
+    }
+
+    .user-role {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+      line-height: 1.2;
+    }
+
+    .btn-ghost {
+      font-size: 13px;
+      color: var(--sage);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      text-decoration: none;
+      transition: color 150ms ease;
+    }
+
+    .btn-ghost:hover {
+      color: var(--bone);
+    }
+
+    /* Main Content */
+    .main-wrapper {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      height: 72px;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background-color: var(--ink-900);
+    }
+
+    .top-title-group {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+    }
+
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 44px;
+      font-weight: 600;
+      line-height: 1.06;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+    }
+
+    .page-subtitle {
+      font-size: 13px;
+      color: var(--sage-dim);
+      line-height: 1.45;
+    }
+
+    /* Content Area */
+    .content-area {
+      padding: 32px;
+      max-width: 1120px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Filter Row */
+    .filter-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .segmented-control {
+      display: inline-flex;
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 2px;
+      gap: 2px;
+    }
+
+    .segment-btn {
+      height: 32px;
+      padding: 0 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--sage);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+    }
+
+    .segment-btn:hover {
+      color: var(--bone);
+    }
+
+    .segment-btn.active {
+      background-color: var(--ink-700);
+      color: var(--bone);
+    }
+
+    .segment-btn.active::after {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 12px;
+      right: 12px;
+      height: 2px;
+      background-color: var(--lime);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .btn-secondary {
+      height: 40px;
+      padding: 0 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--line-strong);
+      color: var(--bone);
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Instrument Sans', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background-color 150ms ease, border-color 150ms ease;
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--ink-700);
+      border-color: var(--sage-dim);
+    }
+
+    /* Card Component */
+    .card {
+      background-color: var(--ink-800);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .card-title {
+      font-family: 'Instrument Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 600;
+      line-height: 1.30;
+      color: var(--bone);
+      margin-bottom: 20px;
+    }
+
+    .micro-label {
+      font-size: 12px;
+      font-weight: 500;
+      line-height: 1.20;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--sage-dim);
+    }
+
+    .data-large {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 34px;
+      font-weight: 500;
+      line-height: 1.10;
+      color: var(--bone);
+      font-variant-numeric: tabular-nums;
+      margin-top: 6px;
+      margin-bottom: 24px;
+    }
+
+    /* Main Chart */
+    .chart-container {
+      position: relative;
+      width: 100%;
+    }
+
+    .bars-track {
+      display: flex;
+      align-items: flex-end;
+      height: 160px;
+      gap: 6px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 1px;
+      overflow-x: hidden;
+    }
+
+    .bar-col {
+      flex: 1;
+      min-width: 5px;
+      max-width: 14px;
+      height: 100%;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      position: relative;
+    }
+
+    .chart-bar {
+      width: 5px;
+      background-color: var(--lime);
+      border-radius: 2px 2px 0 0;
+      opacity: 0.65;
+      transition: opacity 150ms ease;
+    }
+
+    .chart-bar.latest {
+      opacity: 1;
+    }
+
+    .chart-bar.zero-day {
+      height: 2px !important;
+      background-color: var(--line);
+      opacity: 1;
+      border-radius: 0;
+    }
+
+    .chart-axis {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .axis-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--sage-dim);
+    }
+
+    /* Two-Column Split */
+    .two-column-split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    /* Top Links Table / Rows */
+    .top-links-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-link-row {
+      display: grid;
+      grid-template-columns: 20px 84px 1fr 100px 54px;
+      align-items: center;
+      height: 44px;
+      border-bottom: 1px solid var(--line);
+      gap: 12px;
+    }
+
+    .top-link-row:last-child {
+      border-bottom: none;
+    }
+
+    .rank-number {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--sage-dim);
+    }
+
+    .link-code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--lime);
+    }
+
+    .link-dest {
+      font-size: 13px;
+      color: var(--sage);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-bar-wrap {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      height: 6px;
+      background-color: transparent;
+    }
+
+    .link-bar-fill {
+      height: 6px;
+      background-color: var(--lime);
+      border-radius: 2px;
+    }
+
+    .link-clicks {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--bone);
+      text-align: right;
+    }
+
+    /* Weekday Chart */
+    .weekday-chart {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      height: 220px;
+      padding-top: 16px;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 2px;
+    }
+
+    .weekday-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+      justify-content: flex-end;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .weekday-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--sage);
+      margin-bottom: 4px;
+    }
+
+    .weekday-bar {
+      width: 24px;
+      background-color: var(--lime);
+      border-radius: 2px 2px 0 0;
+    }
+
+    .weekday-bar.weekend {
+      opacity: 0.65;
+    }
+
+    .weekday-axis {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 10px;
+    }
+
+    .weekday-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--sage-dim);
+      text-align: center;
+      flex: 1;
+    }
+
+    /* Bottom Card: Comparativa */
+    .comparativa-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      margin-top: 4px;
+    }
+
+    .comparativa-stat {
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .comparativa-stat:first-child {
+      padding-left: 0;
+    }
+
+    .comparativa-stat:last-child {
+      padding-right: 0;
+    }
+
+    .comparativa-stat:not(:last-child) {
+      border-right: 1px solid var(--line);
+    }
+
+    .comparativa-stat .data-large {
+      margin-bottom: 0;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+<!-- SIDEBAR (264px) -->
+<aside class="sidebar">
+<div class="brand-header">
+<span class="brand-title">shorturl</span>
+<span class="pill-badge">V1</span>
+</div>
+<nav class="sidebar-nav">
+<a class="nav-item" href="#">Panel</a>
+<a class="nav-item" href="#">Links</a>
+<a class="nav-item active" href="#">Analíticas</a>
+</nav>
+<div class="sidebar-footer">
+<div class="user-profile">
+<span class="user-name">oscar</span>
+<span class="user-role">DUEÑO</span>
+</div>
+<button class="btn-ghost" type="button">Salir</button>
+</div>
+</aside>
+<!-- MAIN WRAPPER -->
+<main class="main-wrapper">
+<!-- TOP BAR (72px) -->
+<header class="top-bar">
+<div class="top-title-group">
+<h1 class="page-title">Analíticas</h1>
+<span class="page-subtitle">Todos los links · últimos 90 días</span>
+</div>
+</header>
+<!-- CONTENT AREA -->
+<div class="content-area">
+<!-- FILTER ROW -->
+<section class="filter-row">
+<div aria-label="Rango de tiempo" class="segmented-control" role="group">
+<button class="segment-btn" type="button">7 d</button>
+<button class="segment-btn" type="button">30 d</button>
+<button class="segment-btn active" type="button">90 d</button>
+</div>
+<button class="btn-secondary" type="button">
+          Exportar CSV
+        </button>
+</section>
+<!-- CHART CARD (FULL WIDTH) -->
+<section class="card">
+<div class="micro-label">CLICS TOTALES</div>
+<div class="data-large">9.482</div>
+<div class="chart-container">
+<div class="bars-track">
+<!-- 60 bars series with 6px gap, 2px top radius, #C8F751 at 65%, zero days as 2px stubs, and final bar at 100% -->
+<!-- Month 1: March (~20 days represented) -->
+<div class="bar-col"><div class="chart-bar" style="height: 18%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 24%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 32%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 28%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 42%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 38%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 22%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 48%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 52%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 36%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 44%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 30%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 56%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 40%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 34%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 48%;"></div></div>
+<!-- Month 2: April / May (~20 days represented) -->
+<div class="bar-col"><div class="chart-bar" style="height: 54%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 60%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 38%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 64%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 58%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 70%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 45%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 52%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 68%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 62%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 42%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 74%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 66%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 58%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 72%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 48%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<!-- Month 3: June / July / August (~20 days represented) -->
+<div class="bar-col"><div class="chart-bar" style="height: 60%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 78%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 82%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 54%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 68%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 76%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 84%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 64%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 88%;"></div></div>
+<div class="bar-col"><div class="chart-bar zero-day"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 70%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 82%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 90%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 76%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 85%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 68%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 92%;"></div></div>
+<div class="bar-col"><div class="chart-bar" style="height: 80%;"></div></div>
+<!-- Last day bar at 100% lime -->
+<div class="bar-col"><div class="chart-bar latest" style="height: 96%;"></div></div>
+</div>
+<div class="chart-axis">
+<span class="axis-label">1 mar</span>
+<span class="axis-label">may</span>
+<span class="axis-label">jul</span>
+<span class="axis-label">30 ago</span>
+</div>
+</div>
+</section>
+<!-- TWO-COLUMN SPLIT -->
+<section class="two-column-split">
+<!-- LEFT CARD: Top links -->
+<div class="card">
+<h2 class="card-title">Top links</h2>
+<div class="top-links-list">
+<!-- Row 1 -->
+<div class="top-link-row">
+<span class="rank-number">1</span>
+<span class="link-code">x7Kd2pQ</span>
+<span class="link-dest" title="ejemplo.com/blog/como-acortar-urls">ejemplo.com/blog/como-acortar-urls</span>
+<div class="link-bar-wrap">
+<div class="link-bar-fill" style="width: 100%;"></div>
+</div>
+<span class="link-clicks">1.284</span>
+</div>
+<!-- Row 2 -->
+<div class="top-link-row">
+<span class="rank-number">2</span>
+<span class="link-code">m3Qz8Tn</span>
+<span class="link-dest" title="ejemplo.com/precios">ejemplo.com/precios</span>
+<div class="link-bar-wrap">
+<div class="link-bar-fill" style="width: 48%;"></div>
+</div>
+<span class="link-clicks">612</span>
+</div>
+<!-- Row 3 -->
+<div class="top-link-row">
+<span class="rank-number">3</span>
+<span class="link-code">b9Wr4Lc</span>
+<span class="link-dest" title="docs.ejemplo.com/guia/urls-cortas">docs.ejemplo.com/guia/urls-cortas</span>
+<div class="link-bar-wrap">
+<div class="link-bar-fill" style="width: 30%;"></div>
+</div>
+<span class="link-clicks">388</span>
+</div>
+<!-- Row 4 -->
+<div class="top-link-row">
+<span class="rank-number">4</span>
+<span class="link-code">t5Nv1Hs</span>
+<span class="link-dest" title="tienda.ejemplo.com/lanzamiento">tienda.ejemplo.com/lanzamiento</span>
+<div class="link-bar-wrap">
+<div class="link-bar-fill" style="width: 19%;"></div>
+</div>
+<span class="link-clicks">241</span>
+</div>
+<!-- Row 5 -->
+<div class="top-link-row">
+<span class="rank-number">5</span>
+<span class="link-code">k2Jd7Pm</span>
+<span class="link-dest" title="ejemplo.com/newsletter">ejemplo.com/newsletter</span>
+<div class="link-bar-wrap">
+<div class="link-bar-fill" style="width: 8%;"></div>
+</div>
+<span class="link-clicks">96</span>
+</div>
+</div>
+</div>
+<!-- RIGHT CARD: Días de la semana -->
+<div class="card">
+<h2 class="card-title">Días de la semana</h2>
+<div class="weekday-chart">
+<!-- lun -->
+<div class="weekday-col">
+<span class="weekday-val">2.140</span>
+<div class="weekday-bar" style="height: 140px;"></div>
+</div>
+<!-- mar -->
+<div class="weekday-col">
+<span class="weekday-val">1.890</span>
+<div class="weekday-bar" style="height: 124px;"></div>
+</div>
+<!-- mié -->
+<div class="weekday-col">
+<span class="weekday-val">1.750</span>
+<div class="weekday-bar" style="height: 114px;"></div>
+</div>
+<!-- jue -->
+<div class="weekday-col">
+<span class="weekday-val">1.620</span>
+<div class="weekday-bar" style="height: 106px;"></div>
+</div>
+<!-- vie -->
+<div class="weekday-col">
+<span class="weekday-val">1.340</span>
+<div class="weekday-bar" style="height: 88px;"></div>
+</div>
+<!-- sáb (weekend 65% opacity) -->
+<div class="weekday-col">
+<span class="weekday-val">422</span>
+<div class="weekday-bar weekend" style="height: 28px;"></div>
+</div>
+<!-- dom (weekend 65% opacity) -->
+<div class="weekday-col">
+<span class="weekday-val">320</span>
+<div class="weekday-bar weekend" style="height: 22px;"></div>
+</div>
+</div>
+<div class="weekday-axis">
+<span class="weekday-label">lun</span>
+<span class="weekday-label">mar</span>
+<span class="weekday-label">mié</span>
+<span class="weekday-label">jue</span>
+<span class="weekday-label">vie</span>
+<span class="weekday-label">sáb</span>
+<span class="weekday-label">dom</span>
+</div>
+</div>
+</section>
+<!-- BOTTOM CARD: Comparativa -->
+<section class="card">
+<h2 class="card-title">Comparativa</h2>
+<div class="comparativa-grid">
+<!-- Stat 1 -->
+<div class="comparativa-stat">
+<span class="micro-label">MEJOR DÍA DE LA SEMANA</span>
+<span class="data-large">lunes</span>
+</div>
+<!-- Stat 2 -->
+<div class="comparativa-stat">
+<span class="micro-label">CLICS POR LINK (PROMEDIO)</span>
+<span class="data-large">34,7</span>
+</div>
+<!-- Stat 3 -->
+<div class="comparativa-stat">
+<span class="micro-label">LINKS CON CERO CLICS</span>
+<span class="data-large">6</span>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body>
+</html>
