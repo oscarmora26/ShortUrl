@@ -61,16 +61,19 @@ Purpose: get the owner in without friction. Currently the weakest screen.
 - States: wrong password → input `--rust` border, `small --rust` `Contraseña incorrecta.`; loading → button shows `Entrando…` and disables; success → redirect to `/admin`.
 - No "show password" affordance, no social buttons, no sign-up link.
 
-## 4. `/admin` — Panel
+## 4. `/admin` — Panel (estado de hoy)
 
-Purpose: answer "how are my links doing right now" in one screen.
+Purpose: answer "¿qué está pasando ahora?" — status, not trends. The time series and the
+aggregate analysis live only on `/admin/analytics`; this screen must not duplicate them.
 
-- Sidebar 264: wordmark top; nav `Panel` (active), `Links`, `Analíticas`; bottom, above a hairline: owner name `oscar` + `dueño` stacked, and a `ghost` `Salir` on the right.
-- Top bar 72: `display-l` `Panel` + `small --sage-dim` `Últimos 30 días · Buenos Aires`. Right: search input 240 (`Buscar código o URL`) + `primary` `+ Nuevo link`.
+- Sidebar 264: wordmark top; nav `Panel` (active), `Links`, `Analíticas`; bottom, above a hairline: owner name `oscar` + `DUEÑO` stacked, and a `ghost` `Salir` on the right.
+- Top bar 72: `display-l` `Panel` + `small --sage-dim` `Hoy · Buenos Aires`. Right: search input 240 (`Buscar código o URL`) + `primary` `+ Nuevo link`.
 - Content, gap 24:
-  - Four `Stat` cards: `Clics totales` `1.284` `↑ 12,4% vs. período anterior` (lime); `Links activos` `37` `3 creados esta semana`; `Clics hoy` `47` `↑ 8 vs. ayer`; `Promedio diario` `42,8` `últimos 30 días`
-  - Chart card, fills remaining height: `title` `Clics por día`, legend right (`Clics` lime, `Hoy` lime 100%), bars grow from baseline, axis `1 may` / `15 may` / `30 may`
-  - Table card: header `CÓDIGO` `DESTINO` `CLICS` `CREADO` (+ 24px action gutter). Five rows, 56 tall: `x7Kd2pQ` · `ejemplo.com/blog/como-acortar-urls` · `1.284` · `hace 12 d`; then `m3Qz8Tn` 612, `b9Wr4Lc` 388, `t5Nv1Hs` 241, `k2Jd7Pm` 96.
+  - Four `Stat` cards: `Clics hoy` `47` `↑ 8 vs. ayer` (lime); `Links activos` `37`; `Último clic` `hace 2 min`; `Creados hoy` `3`
+  - Two columns: `Actividad reciente` (grows) listing the last 8 clicks as 44px rows — time in `data-s --sage-dim`, code in `data-m --lime`, destination truncated; right rail card 300 `TOP DE HOY` with three rows, each a 2px lime tick, label left and mono count right, hugging its content instead of stretching
+  - Table card: header `CÓDIGO` `DESTINO` `CLICS` `CREADO` `ACCIONES`. Five rows, 56 tall: `x7Kd2pQ` · `ejemplo.com/blog/como-acortar-urls` · `1.284` · `hace 12 d` · `···`; then `m3Qz8Tn` 612, `b9Wr4Lc` 388, `t5Nv1Hs` 241, `k2Jd7Pm` 96.
+  - The action `···` needs a column wide enough to render all three dots; it has been clipped twice before.
+- This screen has no 30-day series and no page footer.
 - Empty state: no links yet → `Centered EmptyState` with `Todavía no acortaste nada.` + `primary` `Crear el primero`.
 
 ## 5. `/admin/links` — Índice de links (missing before)
