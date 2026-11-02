@@ -1,0 +1,25 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: shorturl2-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: shorturl2
+    ports:
+      # Host port defaults to 5432. Override with DB_PORT when another local
+      # Postgres already owns 5432 (compose-only variable, not app config).
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - shorturl2-db-data:/var/lib/postgresql/data
+      # Creates the `shorturl_test` database on a fresh volume.
+      - ./scripts/docker-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d shorturl2"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  shorturl2-db-data:
