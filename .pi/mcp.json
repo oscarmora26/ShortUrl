@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "openpencil": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--yes", "-p", "@open-pencil/mcp@0.16.0", "openpencil-mcp"],
+      "env": {},
+      "description": "OpenPencil design editor: inspect and edit documents, pages, and layers in the running desktop app through its local MCP bridge."
+    }
+  }
+}
