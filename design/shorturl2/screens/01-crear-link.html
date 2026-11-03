@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ShortURL2 · Crear link</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; overflow: hidden; }
+  body {
+    width: 1440px;
+    height: 900px;
+    background: var(--su-bg);
+    color: var(--su-text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; }
+
+  /* top bar */
+  .nav {
+    display: flex;
+    align-items: center;
+    height: 68px;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--su-border);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--su-accent); }
+  .brand-name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+  .brand-tag {
+    margin-left: 2px;
+    padding: 3px 8px;
+    border: 1px solid var(--su-border);
+    border-radius: 6px;
+    background: var(--su-surface-raised);
+    color: var(--su-text-dim);
+    font-size: 11px;
+    line-height: 14px;
+  }
+  .nav-links { margin-left: auto; display: flex; align-items: center; gap: 18px; }
+  .nav-link { font-size: 13px; color: var(--su-text-muted); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 32px;
+    padding: 0 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--su-text);
+  }
+  .btn-raised { background: var(--su-surface-raised); }
+  .btn-outline { border-color: var(--su-border-strong); }
+
+  /* hero */
+  .hero {
+    height: 832px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 16px;
+    border: 1px solid var(--su-border);
+    border-radius: 99px;
+    background: var(--su-surface);
+    font-size: 12px;
+    color: var(--su-text-muted);
+  }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--su-positive); }
+  .headline {
+    max-width: 560px;
+    margin: 18px 0 0;
+    font-size: 56px;
+    line-height: 1.12;
+    font-weight: 700;
+    letter-spacing: -1.6px;
+    text-wrap: balance;
+  }
+  .sub {
+    max-width: 660px;
+    margin: 14px 0 0;
+    font-size: 16px;
+    line-height: 24px;
+    color: var(--su-text-muted);
+  }
+
+  /* create card */
+  .link-card {
+    width: 720px;
+    margin-top: 30px;
+    padding: 24px 28px 26px;
+    border: 1px solid var(--su-border);
+    border-radius: 18px;
+    background: var(--su-surface);
+    text-align: left;
+  }
+  .flabel {
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    line-height: 15px;
+    letter-spacing: 0.6px;
+    color: var(--su-text-dim);
+    text-transform: uppercase;
+  }
+  .url-row { display: flex; gap: 12px; margin-top: 10px; }
+  .url-input {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    height: 52px;
+    padding: 0 16px;
+    border: 1px solid var(--su-border-strong);
+    border-radius: 10px;
+    background: var(--su-bg);
+    color: var(--su-text-muted);
+    font-size: 14px;
+  }
+  .btn-primary {
+    height: 52px;
+    padding: 0 24px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--su-accent);
+    color: var(--su-bg);
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .rule { height: 1px; margin: 20px 0 0; border: 0; background: var(--su-border); }
+  .label-gen { display: block; margin-top: 20px; }
+  .gen {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 58px;
+    margin-top: 13px;
+    padding: 0 14px;
+    border: 1px solid var(--su-border);
+    border-radius: 12px;
+    background: var(--su-bg);
+  }
+  .gen-url { font-size: 17px; color: var(--su-text); }
+  .btn-ghost {
+    margin-left: auto;
+    height: 30px;
+    padding: 0 14px;
+    border: 1px solid var(--su-border);
+    border-radius: 8px;
+    background: var(--su-surface-raised);
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--su-text);
+  }
+  .meta {
+    display: grid;
+    grid-template-columns: 58px 1fr;
+    margin: 13px 0 0;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    line-height: 24px;
+  }
+  .meta dt { color: var(--su-text-dim); }
+  .meta dd { margin: 0; color: var(--su-text-muted); }
+
+  .note { margin: 24px 0 0; font-size: 12px; color: var(--su-text-dim); }
+</style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">shorturl</div>
+      <div class="brand-tag mono">v1</div>
+    </div>
+    <div class="nav-links">
+      <button class="btn btn-raised">Crear</button>
+      <span class="nav-link">Panel</span>
+      <button class="btn btn-outline">Iniciar sesión</button>
+    </div>
+  </header>
+
+  <main class="hero">
+    <div class="pill"><span class="dot"></span>Analíticas en vivo</div>
+
+    <h1 class="headline">Links cortos.<br>Datos que sirven.</h1>
+
+    <p class="sub">Pegá cualquier URL, obtené un link de 7 caracteres y mirá exactamente cuándo lo abren.</p>
+
+    <section class="link-card">
+      <span class="flabel">URL original</span>
+      <div class="url-row">
+        <div class="url-input">https://ejemplo.com/una/url/muy/larga</div>
+        <button class="btn-primary">Acortar</button>
+      </div>
+
+      <hr class="rule">
+
+      <span class="flabel label-gen">Link generado</span>
+      <div class="gen">
+        <span class="dot"></span>
+        <span class="gen-url mono">shorturl.app/x7Kd2pQ</span>
+        <button class="btn-ghost">Copiar</button>
+      </div>
+
+      <dl class="meta">
+        <dt>resp.</dt>
+        <dd>302 · Cache-Control: no-store</dd>
+        <dt>destino</dt>
+        <dd>ejemplo.com/una/url/muy/larga</dd>
+      </dl>
+    </section>
+
+    <p class="note">Máximo 20 links por hora por IP · los clics de previews también cuentan</p>
+  </main>
+</body>
+</html>

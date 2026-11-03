@@ -16,11 +16,14 @@ export function Skeleton({ className }: { className?: string }) {
   );
 }
 
-/** The 72px bar every admin route starts with, while its data resolves. */
+/**
+ * The 72px bar every admin route starts with, while its data resolves. Its title
+ * block only shows below `lg`, where the real bars show theirs.
+ */
 export function SkeletonHeader() {
   return (
     <div className="flex h-[72px] items-center justify-between border-b border-line px-8">
-      <Skeleton className="h-8 w-48" />
+      <Skeleton className="h-8 w-48 lg:hidden" />
       <Skeleton className="h-10 w-32" />
     </div>
   );

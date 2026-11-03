@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { AdminSidebarToggle } from "@/components/admin-shell";
 import { Card, CardLabel, CardTitle } from "@/components/card";
 import { Chart } from "@/components/chart";
 import {
@@ -17,6 +18,7 @@ import {
 } from "@/components/format";
 import { LinkActions } from "@/components/link-actions";
 import { PageContent } from "@/components/page-header";
+import { RefreshButton } from "@/components/refresh-button";
 import { Stat } from "@/components/stat";
 import { requireAdminPage } from "@/lib/admin-guard";
 import { getLinkStats } from "@/lib/analytics";
@@ -64,8 +66,9 @@ export default async function LinkDetailPage({
 
   return (
     <>
-      <header className="sticky top-0 z-20 flex h-[72px] items-center justify-between gap-6 border-b border-line bg-canvas px-8">
+      <header className="sticky top-0 z-20 flex h-[72px] items-center justify-between gap-4 border-b border-line bg-canvas px-8">
         <div className="flex min-w-0 items-center gap-4">
+          <AdminSidebarToggle />
           <Link
             href="/admin/links"
             aria-label="Volver a links"
@@ -89,6 +92,7 @@ export default async function LinkDetailPage({
             shortUrl={buildShortUrl(stats.code)}
             disabled={disabled}
           />
+          <RefreshButton />
         </div>
       </header>
 

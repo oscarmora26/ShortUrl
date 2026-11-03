@@ -43,6 +43,18 @@ export function buttonClassName(
   );
 }
 
+/**
+ * The icon-only button of the admin shell: a 40px square on the `secondary`
+ * surface, holding a 16px `currentColor` glyph. One implementation, shared by
+ * the refresh control and the off-canvas menu toggle.
+ */
+export function iconButtonClassName(className?: string): string {
+  return cn(
+    "flex size-10 shrink-0 items-center justify-center rounded-md border border-line-strong text-sage transition-colors hover:bg-raised hover:text-bone disabled:cursor-not-allowed disabled:opacity-40",
+    className,
+  );
+}
+
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;

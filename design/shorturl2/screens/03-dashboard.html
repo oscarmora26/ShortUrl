@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ShortURL2 · Panel</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; overflow: hidden; }
+  body {
+    width: 1440px;
+    height: 1024px;
+    background: var(--su-bg);
+    color: var(--su-text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; }
+  .shell { display: flex; height: 100%; }
+
+  /* ---------- sidebar ---------- */
+  .side {
+    display: flex;
+    flex-direction: column;
+    width: 248px;
+    background: var(--su-surface);
+    border-right: 1px solid var(--su-border);
+  }
+  .side-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 66px;
+    padding-left: 26px;
+    border-bottom: 1px solid var(--su-border);
+  }
+  .brand-mark { width: 24px; height: 24px; border-radius: 7px; background: var(--su-accent); }
+  .brand-name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+  .side-nav { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px 0; }
+  .side-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 34px;
+    padding-left: 26px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--su-text-muted);
+  }
+  .side-item.is-active { background: var(--su-surface-raised); color: var(--su-text); }
+  .side-item.is-active::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 9px;
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--su-accent);
+  }
+  .side-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    height: 74px;
+    padding: 0 18px 0 26px;
+    border-top: 1px solid var(--su-border);
+  }
+  .avatar {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--su-border);
+    border-radius: 50%;
+    background: var(--su-surface-raised);
+  }
+  .who { display: flex; flex-direction: column; }
+  .who-name { font-size: 13px; font-weight: 600; line-height: 16px; }
+  .who-role { font-size: 12px; line-height: 14px; color: var(--su-text-dim); }
+  .signout { margin-left: auto; font-size: 12px; color: var(--su-text-dim); }
+
+  /* ---------- content frame ---------- */
+  .main { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+  .topbar {
+    display: flex;
+    align-items: center;
+    height: 72px;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--su-border);
+  }
+  .titles { display: flex; flex-direction: column; gap: 2px; }
+  h1 { margin: 0; font-size: 24px; line-height: 28px; font-weight: 700; letter-spacing: -0.4px; }
+  .subtitle { margin: 0; font-size: 13px; line-height: 18px; color: var(--su-text-muted); }
+  .actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .search {
+    display: flex;
+    align-items: center;
+    width: 219px;
+    height: 34px;
+    padding: 0 12px;
+    border: 1px solid var(--su-border);
+    border-radius: 8px;
+    background: var(--su-surface);
+    font-size: 13px;
+    color: var(--su-text-dim);
+  }
+  .btn-accent {
+    display: inline-flex;
+    align-items: center;
+    height: 34px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 8px;
+    background: var(--su-accent);
+    color: var(--su-bg);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .page { display: flex; flex: 1; flex-direction: column; gap: 16px; padding: 32px; }
+
+  .card { border: 1px solid var(--su-border); border-radius: 14px; background: var(--su-surface); }
+
+  /* ---------- stat cards ---------- */
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stat { display: flex; flex-direction: column; height: 120px; padding: 20px; }
+  .stat-label { font-size: 12px; line-height: 16px; color: var(--su-text-muted); }
+  .stat-value {
+    margin-top: 6px;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 30px;
+    line-height: 34px;
+    font-weight: 500;
+    letter-spacing: -1px;
+  }
+  .stat-meta { margin-top: 8px; font-size: 12px; line-height: 18px; color: var(--su-text-dim); }
+  .stat-meta.up { color: var(--su-positive); }
+
+  /* ---------- chart ---------- */
+  .chart { display: flex; flex-direction: column; height: 355px; padding: 20px; }
+  .chart-head { display: flex; align-items: center; }
+  .chart-title { font-size: 14px; line-height: 24px; font-weight: 600; letter-spacing: -0.1px; }
+  .legend { display: flex; gap: 16px; margin-left: auto; font-size: 12px; color: var(--su-text-muted); }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; }
+  .swatch { width: 7px; height: 7px; border-radius: 2px; background: var(--su-accent); }
+  .swatch.today { background: var(--su-positive); }
+  .plot { display: flex; align-items: flex-end; gap: 6px; height: 150px; margin-top: auto; }
+  .bar { flex: 1; border-radius: 3px 3px 0 0; background: var(--su-accent); }
+  .bar.is-today { background: var(--su-positive); }
+  .axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--su-text-dim);
+  }
+
+  /* ---------- links table ---------- */
+  .table { height: 378px; padding: 0 20px; }
+  .thead, .trow {
+    display: grid;
+    grid-template-columns: 119px minmax(0, 1fr) 100px 110px 32px;
+    align-items: center;
+  }
+  .thead {
+    height: 46px;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.8px;
+    color: var(--su-text-dim);
+    text-transform: uppercase;
+  }
+  .trow { height: 66px; border-top: 1px solid var(--su-border); }
+  .cell-code { font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; font-size: 13px; color: var(--su-accent); }
+  .cell-dest {
+    padding-right: 16px;
+    overflow: hidden;
+    font-size: 14px;
+    color: var(--su-text-muted);
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .cell-clicks { padding-right: 6px; font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; font-size: 13px; text-align: right; }
+  .cell-created { padding-left: 14px; font-size: 12px; color: var(--su-text-dim); }
+  .cell-more { font-size: 12px; text-align: right; color: var(--su-text-dim); }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="side-brand">
+        <div class="brand-mark"></div>
+        <div class="brand-name">shorturl</div>
+      </div>
+
+      <nav class="side-nav">
+        <div class="side-item is-active">Panel</div>
+        <div class="side-item">Links</div>
+        <div class="side-item">Analíticas</div>
+        <div class="side-item">Ajustes</div>
+      </nav>
+
+      <div class="side-foot">
+        <div class="avatar"></div>
+        <div class="who">
+          <span class="who-name">oscar</span>
+          <span class="who-role">dueño</span>
+        </div>
+        <span class="signout">Salir</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="titles">
+          <h1>Panel</h1>
+          <p class="subtitle">Últimos 30 días · Buenos Aires</p>
+        </div>
+        <div class="actions">
+          <div class="search">Buscar código o URL</div>
+          <button class="btn-accent">+ Nuevo link</button>
+        </div>
+      </header>
+
+      <div class="page">
+        <div class="stats">
+          <section class="card stat">
+            <span class="stat-label">Clics totales</span>
+            <span class="stat-value">1.284</span>
+            <span class="stat-meta up">↑ 12,4% vs. periodo anterior</span>
+          </section>
+          <section class="card stat">
+            <span class="stat-label">Links activos</span>
+            <span class="stat-value">37</span>
+            <span class="stat-meta">3 creados esta semana</span>
+          </section>
+          <section class="card stat">
+            <span class="stat-label">Clics hoy</span>
+            <span class="stat-value">47</span>
+            <span class="stat-meta up">↑ 8 vs. ayer</span>
+          </section>
+          <section class="card stat">
+            <span class="stat-label">Promedio diario</span>
+            <span class="stat-value">42,8</span>
+            <span class="stat-meta">últimos 30 días</span>
+          </section>
+        </div>
+
+        <section class="card chart">
+          <div class="chart-head">
+            <span class="chart-title">Clics por día</span>
+            <div class="legend">
+              <span class="legend-item"><span class="swatch"></span>Clics</span>
+              <span class="legend-item"><span class="swatch today"></span>Hoy</span>
+            </div>
+          </div>
+          <div class="plot">
+            <div class="bar" style="height:80px;opacity:.7"></div>
+            <div class="bar" style="height:93px;opacity:.75"></div>
+            <div class="bar" style="height:87px;opacity:.73"></div>
+            <div class="bar" style="height:110px;opacity:.83"></div>
+            <div class="bar" style="height:127px;opacity:.89"></div>
+            <div class="bar" style="height:72px;opacity:.66"></div>
+            <div class="bar" style="height:61px;opacity:.6"></div>
+            <div class="bar" style="height:99px;opacity:.78"></div>
+            <div class="bar" style="height:116px;opacity:.85"></div>
+            <div class="bar" style="height:123px;opacity:.88"></div>
+            <div class="bar" style="height:131px;opacity:.92"></div>
+            <div class="bar" style="height:108px;opacity:.81"></div>
+            <div class="bar" style="height:70px;opacity:.64"></div>
+            <div class="bar" style="height:59px;opacity:.6"></div>
+            <div class="bar" style="height:104px;opacity:.8"></div>
+            <div class="bar" style="height:120px;opacity:.86"></div>
+            <div class="bar" style="height:133px;opacity:.92"></div>
+            <div class="bar" style="height:139px;opacity:.94"></div>
+            <div class="bar" style="height:123px;opacity:.88"></div>
+            <div class="bar" style="height:82px;opacity:.7"></div>
+            <div class="bar" style="height:65px;opacity:.63"></div>
+            <div class="bar" style="height:110px;opacity:.83"></div>
+            <div class="bar" style="height:129px;opacity:.9"></div>
+            <div class="bar" style="height:142px;opacity:.96"></div>
+            <div class="bar" style="height:150px;opacity:1"></div>
+            <div class="bar" style="height:135px;opacity:.93"></div>
+            <div class="bar" style="height:89px;opacity:.73"></div>
+            <div class="bar" style="height:74px;opacity:.67"></div>
+            <div class="bar" style="height:123px;opacity:.88"></div>
+            <div class="bar is-today" style="height:139px"></div>
+          </div>
+          <div class="axis">
+            <span>1 may</span>
+            <span>15 may</span>
+            <span>30 may</span>
+          </div>
+        </section>
+
+        <section class="card table">
+          <div class="thead">
+            <span>Código</span>
+            <span>Destino</span>
+            <span class="cell-clicks">Clics</span>
+            <span class="cell-created">Creado</span>
+            <span></span>
+          </div>
+
+          <div class="trow">
+            <span class="cell-code">x7Kd2pQ</span>
+            <span class="cell-dest">ejemplo.com/blog/como-acortar-urls</span>
+            <span class="cell-clicks">1.284</span>
+            <span class="cell-created">hace 12 d</span>
+            <span class="cell-more">···</span>
+          </div>
+          <div class="trow">
+            <span class="cell-code">m3Qz8Tn</span>
+            <span class="cell-dest">github.com/oscar/shorturl2</span>
+            <span class="cell-clicks">612</span>
+            <span class="cell-created">hace 9 d</span>
+            <span class="cell-more">···</span>
+          </div>
+          <div class="trow">
+            <span class="cell-code">b9Wr4Lc</span>
+            <span class="cell-dest">docs.railway.app/guides/deploy</span>
+            <span class="cell-clicks">388</span>
+            <span class="cell-created">hace 6 d</span>
+            <span class="cell-more">···</span>
+          </div>
+          <div class="trow">
+            <span class="cell-code">t5Nv1Hs</span>
+            <span class="cell-dest">youtube.com/watch?v=9f2kL</span>
+            <span class="cell-clicks">241</span>
+            <span class="cell-created">hace 4 d</span>
+            <span class="cell-more">···</span>
+          </div>
+          <div class="trow">
+            <span class="cell-code">k2Jd7Pm</span>
+            <span class="cell-dest">calendly.com/oscar/30min</span>
+            <span class="cell-clicks">96</span>
+            <span class="cell-created">hace 2 d</span>
+            <span class="cell-more">···</span>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

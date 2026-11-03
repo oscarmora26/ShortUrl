@@ -178,7 +178,7 @@ export default async function LinksPage({
     {
       key: "actions",
       header: "",
-      width: "64px",
+      width: "96px",
       align: "right",
       cell: (item) => (
         <Link
@@ -196,11 +196,13 @@ export default async function LinksPage({
     <>
       <PageHeader
         title="Links"
+        titleMode="mobile-only"
+        subtitleMode="from-sm"
         subtitle={`${formatNumber(active.total)} activos · ${formatNumber(disabled.total)} deshabilitados`}
       />
 
       <PageContent>
-        <div className="rise rise-1 flex items-center gap-3">
+        <div className="rise rise-1 flex flex-wrap items-center gap-3">
           <FilterBar q={query.q} status={query.status as LinkListStatus} />
           <ExportCsvButton filename="links.csv" rows={csvRows} />
         </div>

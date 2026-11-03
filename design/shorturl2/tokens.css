@@ -1,0 +1,17 @@
+/* ShortURL2 design tokens
+   Single source of truth for color. Screens reference these variables only. */
+
+:root {
+  --su-bg: #0A0C10;
+  --su-surface: #12151C;
+  --su-surface-raised: #181C25;
+  --su-border: #232935;
+  --su-border-strong: #2E3646;
+  --su-text: #E9EDF5;
+  --su-text-muted: #9AA4B8;
+  --su-text-dim: #808A9E;
+  --su-accent: #5B8CFF;
+  --su-positive: #3DDC97;
+  --su-danger: #FF6B6B;
+  --su-warning: #FFB454;
+}

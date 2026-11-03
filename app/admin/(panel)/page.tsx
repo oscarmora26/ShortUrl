@@ -141,13 +141,19 @@ export default async function AdminPanelPage() {
 
   return (
     <>
+      {/* S15 / screen 04: the sidebar marks the active page from `lg` up, so
+          the bar keeps its title only while the sidebar is off-canvas. */}
       <PageHeader
         title="Panel"
         titleSize="m"
-        subtitle={`Hoy · ${(timeZone.split("/").at(-1) ?? timeZone).replaceAll("_", " ")}`}
+        titleMode="mobile-only"
+        subtitle="Hoy"
         actions={
           <>
-            <form action="/admin/links" className="flex items-center gap-3">
+            <form
+              action="/admin/links"
+              className="hidden items-center gap-3 md:flex"
+            >
               <Input
                 name="q"
                 size="sm"
@@ -157,7 +163,10 @@ export default async function AdminPanelPage() {
                 className="w-60"
               />
             </form>
-            <Link href="/" className={buttonClassName("primary", "md")}>
+            <Link
+              href="/"
+              className={buttonClassName("primary", "sm", "md:h-10 md:px-4")}
+            >
               + Nuevo link
             </Link>
           </>

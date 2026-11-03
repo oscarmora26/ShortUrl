@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ShortURL2 · Detalle del link</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; overflow: hidden; }
+  body {
+    width: 1440px;
+    height: 1024px;
+    background: var(--su-bg);
+    color: var(--su-text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; }
+  .shell { display: flex; height: 100%; }
+
+  /* ---------- sidebar ---------- */
+  .side {
+    display: flex;
+    flex-direction: column;
+    width: 248px;
+    background: var(--su-surface);
+    border-right: 1px solid var(--su-border);
+  }
+  .side-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 66px;
+    padding-left: 26px;
+    border-bottom: 1px solid var(--su-border);
+  }
+  .brand-mark { width: 24px; height: 24px; border-radius: 7px; background: var(--su-accent); }
+  .brand-name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+  .side-nav { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px 0; }
+  .side-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: 34px;
+    padding-left: 26px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--su-text-muted);
+  }
+  .side-item.is-active { background: var(--su-surface-raised); color: var(--su-text); }
+  .side-item.is-active::before {
+    content: "";
+    position: absolute;
+    left: 12px;
+    top: 9px;
+    width: 3px;
+    height: 16px;
+    border-radius: 2px;
+    background: var(--su-accent);
+  }
+  .side-foot {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
+    height: 74px;
+    padding: 0 18px 0 26px;
+    border-top: 1px solid var(--su-border);
+  }
+  .avatar {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--su-border);
+    border-radius: 50%;
+    background: var(--su-surface-raised);
+  }
+  .who { display: flex; flex-direction: column; }
+  .who-name { font-size: 13px; font-weight: 600; line-height: 16px; }
+  .who-role { font-size: 12px; line-height: 14px; color: var(--su-text-dim); }
+  .signout { margin-left: auto; font-size: 12px; color: var(--su-text-dim); }
+
+  /* ---------- frame ---------- */
+  .main { display: flex; flex: 1; flex-direction: column; min-width: 0; }
+  .topbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    height: 72px;
+    padding: 0 32px;
+    border-bottom: 1px solid var(--su-border);
+  }
+  .back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: 1px solid var(--su-border);
+    border-radius: 8px;
+    background: var(--su-surface);
+    color: var(--su-text-muted);
+    font-family: inherit;
+    font-size: 15px;
+  }
+  .titles { display: flex; flex-direction: column; gap: 4px; }
+  h1 { margin: 0; font-size: 17px; line-height: 22px; font-weight: 600; letter-spacing: 0; }
+  .subtitle { margin: 0; font-size: 11px; line-height: 14px; color: var(--su-text-dim); }
+  .actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
+  .btn-raised {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--su-border);
+    border-radius: 8px;
+    background: var(--su-surface-raised);
+    color: var(--su-text);
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .btn-danger {
+    display: inline-flex;
+    align-items: center;
+    height: 38px;
+    padding: 0 16px;
+    border: 1px solid var(--su-danger);
+    border-radius: 8px;
+    background: none;
+    color: var(--su-danger);
+    font-family: inherit;
+    font-size: 13px;
+  }
+  .page { display: flex; flex: 1; flex-direction: column; gap: 16px; padding: 32px; }
+  .card { border: 1px solid var(--su-border); border-radius: 14px; background: var(--su-surface); }
+
+  /* ---------- destination strip ---------- */
+  .destino {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    height: 47px;
+    padding: 0 20px;
+  }
+  .flabel {
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    letter-spacing: 0.6px;
+    color: var(--su-text-dim);
+    text-transform: uppercase;
+  }
+  .url { font-size: 13px; color: var(--su-text); }
+  .open { margin-left: auto; font-size: 13px; color: var(--su-accent); }
+
+  /* ---------- stat cards ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 17px; }
+  .stat { display: flex; flex-direction: column; height: 117px; padding: 20px 20px 17px; }
+  .stat-label { font-size: 12px; line-height: 16px; color: var(--su-text-muted); }
+  .stat-value {
+    margin-top: 6px;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 30px;
+    line-height: 34px;
+    font-weight: 500;
+    letter-spacing: -1px;
+  }
+  .stat-meta { margin-top: 8px; font-size: 12px; line-height: 18px; color: var(--su-text-dim); }
+  .stat-meta.up { color: var(--su-positive); }
+
+  /* ---------- chart + rail ---------- */
+  .qa { display: flex; gap: 19px; }
+  .chart { display: flex; flex: 1; flex-direction: column; height: 274px; padding: 20px 20px 18px; }
+  .chart-head { display: flex; align-items: center; }
+  .chart-title { font-size: 14px; line-height: 24px; font-weight: 600; letter-spacing: -0.1px; }
+  .chart-note {
+    margin-left: auto;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    color: var(--su-text-dim);
+  }
+  .plot { display: flex; align-items: flex-end; gap: 6px; height: 170px; margin-top: auto; }
+  .bar { flex: 1; border-radius: 3px 3px 0 0; background: var(--su-accent); }
+  .bar.is-today { background: var(--su-positive); }
+  .axis {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 19px;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--su-text-dim);
+  }
+  .rail { display: flex; flex-direction: column; gap: 17px; width: 298px; }
+  .topdays { display: flex; flex-direction: column; height: 356px; padding: 18px; }
+  .topdays-list { display: flex; flex: 1; flex-direction: column; justify-content: space-between; margin-top: 14px; }
+  .day { display: flex; align-items: center; gap: 10px; height: 32px; }
+  .day-bar { flex: none; width: 3px; border-radius: 2px; background: var(--su-accent); }
+  .day-name { font-size: 13px; color: var(--su-text-muted); }
+  .day-count {
+    margin-left: auto;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 13px;
+    color: var(--su-text);
+  }
+  .activity { display: flex; flex-direction: column; height: 128px; padding: 18px; }
+  .activity-list { display: flex; flex-direction: column; gap: 2px; margin-top: 10px; }
+  .act-row { display: flex; align-items: baseline; gap: 12px; font-size: 13px; line-height: 22px; }
+  .act-label { color: var(--su-text-muted); }
+  .act-value { margin-left: auto; color: var(--su-text); }
+</style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="side-brand">
+        <div class="brand-mark"></div>
+        <div class="brand-name">shorturl</div>
+      </div>
+
+      <nav class="side-nav">
+        <div class="side-item">Panel</div>
+        <div class="side-item is-active">Links</div>
+        <div class="side-item">Analíticas</div>
+        <div class="side-item">Ajustes</div>
+      </nav>
+
+      <div class="side-foot">
+        <div class="avatar"></div>
+        <div class="who">
+          <span class="who-name">oscar</span>
+          <span class="who-role">dueño</span>
+        </div>
+        <span class="signout">Salir</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <button class="back">←</button>
+        <div class="titles">
+          <h1 class="mono">x7Kd2pQ</h1>
+          <p class="subtitle mono">302 · no-store · creado hace 12 días</p>
+        </div>
+        <div class="actions">
+          <button class="btn-raised">Copiar link</button>
+          <button class="btn-danger">Deshabilitar</button>
+        </div>
+      </header>
+
+      <div class="page">
+        <section class="card destino">
+          <span class="flabel">Destino</span>
+          <span class="url mono">https://ejemplo.com/blog/como-acortar-urls</span>
+          <span class="open">Abrir</span>
+        </section>
+
+        <div class="stats">
+          <section class="card stat">
+            <span class="stat-label">Clics totales</span>
+            <span class="stat-value">1.284</span>
+            <span class="stat-meta">desde el primer día</span>
+          </section>
+          <section class="card stat">
+            <span class="stat-label">Clics hoy</span>
+            <span class="stat-value">47</span>
+            <span class="stat-meta up">↑ 8 vs. ayer</span>
+          </section>
+          <section class="card stat">
+            <span class="stat-label">Mejor día</span>
+            <span class="stat-value">71</span>
+            <span class="stat-meta">lunes 26 de mayo</span>
+          </section>
+        </div>
+
+        <div class="qa">
+          <section class="card chart">
+            <div class="chart-head">
+              <span class="chart-title">Clics por día</span>
+              <span class="chart-note">30 días</span>
+            </div>
+            <div class="plot">
+              <div class="bar" style="height:91px;opacity:.7"></div>
+              <div class="bar" style="height:105px;opacity:.75"></div>
+              <div class="bar" style="height:99px;opacity:.73"></div>
+              <div class="bar" style="height:125px;opacity:.83"></div>
+              <div class="bar" style="height:144px;opacity:.89"></div>
+              <div class="bar" style="height:82px;opacity:.66"></div>
+              <div class="bar" style="height:69px;opacity:.6"></div>
+              <div class="bar" style="height:112px;opacity:.78"></div>
+              <div class="bar" style="height:131px;opacity:.85"></div>
+              <div class="bar" style="height:139px;opacity:.88"></div>
+              <div class="bar" style="height:148px;opacity:.92"></div>
+              <div class="bar" style="height:122px;opacity:.81"></div>
+              <div class="bar" style="height:79px;opacity:.64"></div>
+              <div class="bar" style="height:67px;opacity:.6"></div>
+              <div class="bar" style="height:118px;opacity:.8"></div>
+              <div class="bar" style="height:136px;opacity:.86"></div>
+              <div class="bar" style="height:151px;opacity:.92"></div>
+              <div class="bar" style="height:158px;opacity:.94"></div>
+              <div class="bar" style="height:139px;opacity:.88"></div>
+              <div class="bar" style="height:93px;opacity:.7"></div>
+              <div class="bar" style="height:74px;opacity:.63"></div>
+              <div class="bar" style="height:125px;opacity:.83"></div>
+              <div class="bar" style="height:146px;opacity:.9"></div>
+              <div class="bar" style="height:161px;opacity:.96"></div>
+              <div class="bar" style="height:170px;opacity:1"></div>
+              <div class="bar" style="height:153px;opacity:.93"></div>
+              <div class="bar" style="height:101px;opacity:.73"></div>
+              <div class="bar" style="height:84px;opacity:.67"></div>
+              <div class="bar" style="height:139px;opacity:.88"></div>
+              <div class="bar is-today" style="height:158px"></div>
+            </div>
+            <div class="axis">
+              <span>1 may</span>
+              <span>15 may</span>
+              <span>30 may</span>
+            </div>
+          </section>
+
+          <div class="rail">
+            <section class="card topdays">
+              <span class="flabel">Top días</span>
+              <div class="topdays-list">
+                <div class="day">
+                  <span class="day-bar" style="height:18px;opacity:.95"></span>
+                  <span class="day-name">lunes 26 may</span>
+                  <span class="day-count">71</span>
+                </div>
+                <div class="day">
+                  <span class="day-bar" style="height:15px;opacity:.8"></span>
+                  <span class="day-name">martes 27 may</span>
+                  <span class="day-count">67</span>
+                </div>
+                <div class="day">
+                  <span class="day-bar" style="height:13px;opacity:.65"></span>
+                  <span class="day-name">miércoles 28 may</span>
+                  <span class="day-count">66</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="card activity">
+              <span class="flabel">Actividad</span>
+              <div class="activity-list">
+                <div class="act-row">
+                  <span class="act-label">Primer clic</span>
+                  <span class="act-value">12 may</span>
+                </div>
+                <div class="act-row">
+                  <span class="act-label">Último clic</span>
+                  <span class="act-value">hace 2 min</span>
+                </div>
+                <div class="act-row">
+                  <span class="act-label">Promedio</span>
+                  <span class="act-value">42,8 / día</span>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

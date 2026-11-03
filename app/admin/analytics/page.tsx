@@ -16,6 +16,7 @@ import {
   weekdayShort,
 } from "@/components/format";
 import { PageContent, PageHeader } from "@/components/page-header";
+import { RangeSelector } from "@/components/range-selector";
 import { requireAdminPage } from "@/lib/admin-guard";
 import {
   ANALYTICS_RANGES,
@@ -78,35 +79,14 @@ export default async function AnalyticsPage({
     <>
       <PageHeader
         title="Analíticas"
+        titleMode="mobile-only"
+        subtitleMode="from-sm"
         subtitle={`Todos los links · últimos ${range} días`}
       />
 
       <PageContent>
-        <div className="rise rise-1 flex items-center justify-between gap-4">
-          <div
-            role="group"
-            aria-label="Rango de tiempo"
-            className="inline-flex items-center gap-0.5 rounded-md border border-line bg-surface p-0.5"
-          >
-            {ANALYTICS_RANGES.map((value) => {
-              const current = value === range;
-              return (
-                <Link
-                  key={value}
-                  href={`/admin/analytics?range=${value}`}
-                  aria-current={current ? "true" : undefined}
-                  className={cn(
-                    "relative inline-flex h-8 items-center justify-center rounded-sm px-4 text-small font-medium transition-colors",
-                    current
-                      ? "bg-raised text-bone after:absolute after:bottom-0 after:left-3 after:right-3 after:h-0.5 after:rounded-t-sm after:bg-lime"
-                      : "text-sage hover:text-bone",
-                  )}
-                >
-                  {value} d
-                </Link>
-              );
-            })}
-          </div>
+        <div className="rise rise-1 flex flex-wrap items-center justify-between gap-4">
+          <RangeSelector range={range} ranges={ANALYTICS_RANGES} />
 
           <ExportCsvButton
             filename={`analytics-${range}d.csv`}

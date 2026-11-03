@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>ShortURL2 · Acceso al panel</title>
+<link rel="stylesheet" href="../tokens.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; overflow: hidden; }
+  body {
+    width: 1440px;
+    height: 900px;
+    background: var(--su-bg);
+    color: var(--su-text);
+    font-family: Inter, "Segoe UI", system-ui, sans-serif;
+    font-size: 14px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .mono { font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace; }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    height: 68px;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--su-border);
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--su-accent); }
+  .brand-name { font-size: 17px; font-weight: 700; letter-spacing: -0.2px; }
+  .nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  .nav-hint { font-size: 13px; color: var(--su-text-muted); }
+  .btn-outline {
+    display: inline-flex;
+    align-items: center;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid var(--su-border-strong);
+    border-radius: 8px;
+    background: none;
+    font-family: inherit;
+    font-size: 13px;
+    color: var(--su-text);
+  }
+
+  /* centered login column */
+  .stage {
+    height: 832px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .login-card {
+    width: 420px;
+    padding: 32px 32px 20px;
+    border: 1px solid var(--su-border);
+    border-radius: 18px;
+    background: var(--su-surface);
+  }
+  .icon-tile {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--su-border-strong);
+    border-radius: 12px;
+    background: var(--su-surface-raised);
+  }
+  .icon-square {
+    position: absolute;
+    left: 12px;
+    top: 13px;
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: var(--su-accent);
+  }
+  h1 {
+    margin: 22px 0 0;
+    font-size: 24px;
+    line-height: 28px;
+    font-weight: 700;
+    letter-spacing: -0.4px;
+  }
+  .sub { margin: 0; font-size: 14px; line-height: 20px; color: var(--su-text-muted); }
+  .flabel {
+    display: block;
+    margin-top: 11px;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.6px;
+    color: var(--su-text-dim);
+    text-transform: uppercase;
+  }
+  .pw {
+    display: flex;
+    align-items: center;
+    width: 154px;
+    height: 46px;
+    margin-top: 10px;
+    padding: 0 13px 0 15px;
+    border: 1px solid var(--su-border-strong);
+    border-radius: 8px;
+    background: var(--su-bg);
+  }
+  .dots {
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 15px;
+    letter-spacing: 0.2px;
+    color: var(--su-text);
+  }
+  .reveal { margin-left: auto; font-size: 13px; color: var(--su-text-muted); }
+  .btn-primary {
+    display: block;
+    width: 100%;
+    height: 48px;
+    margin-top: 22px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--su-accent);
+    color: var(--su-bg);
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .rule { height: 1px; margin: 22px 0 0; border: 0; background: var(--su-border); }
+  .foot {
+    margin: 14px 0 0;
+    font-family: "JetBrains Mono", "Cascadia Mono", Consolas, monospace;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--su-text-dim);
+    white-space: nowrap;
+  }
+  .back { margin-top: 26px; font-size: 13px; color: var(--su-text-muted); }
+</style>
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">
+      <div class="brand-mark"></div>
+      <div class="brand-name">shorturl</div>
+    </div>
+    <div class="nav-right">
+      <span class="nav-hint">¿Solo querés acortar?</span>
+      <button class="btn-outline">Crear link</button>
+    </div>
+  </header>
+
+  <main class="stage">
+    <section class="login-card">
+      <div class="icon-tile"><span class="icon-square"></span></div>
+
+      <h1>Acceso al panel</h1>
+      <p class="sub">necesita cuenta.</p>
+
+      <span class="flabel">Contraseña</span>
+      <div class="pw">
+        <span class="dots">•••••••••••</span>
+        <span class="reveal">ver</span>
+      </div>
+
+      <button class="btn-primary">Entrar</button>
+
+      <hr class="rule">
+      <p class="foot">Sesión de 7 días · cookie HttpOnly · SameSite=Lax</p>
+    </section>
+
+    <p class="back">Volver a crear un link</p>
+  </main>
+</body>
+</html>

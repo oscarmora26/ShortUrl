@@ -1,7 +1,10 @@
 import { SkeletonCard, SkeletonHeader, SkeletonStats } from "@/components/skeleton";
 
-/** Loading skeleton for the status screen (design/system.md hard rule 4). */
-export default function AdminLoading() {
+/**
+ * Loading skeleton for the status screen only. It lives inside the `(panel)`
+ * route group so that entering Links or Analíticas never paints it first.
+ */
+export default function AdminPanelLoading() {
   return (
     <>
       <SkeletonHeader />
